@@ -50,7 +50,7 @@
 | Leftover Ingredients App | ✓ | [N1] |
 | Wikipedia Locations Travel App | ✓ | [N1] |
 | Cookbook Universe | ✓ | [N1] |
-| Idea 10 | ✓ | [N1] |
+| Recipe Roulette | ✓ | [N1] |
 
 **Top 3 selected:** **[Idea 1] · [Idea 2] · [Idea 3]**
 

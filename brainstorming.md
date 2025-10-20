@@ -22,7 +22,7 @@
 ### Member: Keegan Wooding
 1. **Grocery Helper** — This app will be used by everday people who want to speed up the process of shopping. This allows the user to be able to enter the items on their grocery list and then choose a store of their choosing then the app will show them their entire list sorted in aisle order so users can do their shopping in one go.
 2. **Commute Helper** — This app will be used by people everyday who need to time out their commute to get to their destination on time. This would communicate with a map API and parking API that would be able to let the user know exactly when they need to leave to arrive on time.
-3. **Idea Title #3** — *description*
+3. **Playlist Creator** — This will allow the users to be able to find music that they want to listen to. It will let the user listen to a 15-30 second clip of the most replayed part of the song. The user can then swipe right to add it to a playlist and will swipe left if they are not interested in the song. The non selected songs will be put into a database that will not be shown to the user again unless specifically prompted. The users can select which music category they like or they can have it based off of their top listened to songs/artists. This can use the spotify API. It can also show the user concerts in their area and they can select which ones they are most interested in. This could also have a group option where users on other devices can swipe which songs they want to add to a group playlist that could play in the order that they were added in.
 
 ### Member: [Name]
 1. **Idea Title #1** — *description*

@@ -31,7 +31,7 @@
 
 ### Member: Hegel Guevara
 1. **Leftover Ingredients App** — User inputs a list of ingredients that they already have and the app will give them a list of foods that they can make along with the exact recipies to follow. 
-2. **Idea Title #2** — *description*
+2. **Wikipedia Locations Travel App** — App that gives photos, historical facts, and current weather reports on a location. The user can swipe through locations like a dating app so they can build a bucket list of locations they would like to visit 
 3. **Idea Title #3** — *description*
 
 ## 🗳️ Step 2.1: Select the Top Three

@@ -35,16 +35,22 @@
 3. **Cookbook Universe** — Fictional cookbook generator based on movies and games. "The Hobbit's Second Breakfast Guide," "Final Fantasy Potions IRL," "Breaking Bad's Los Pollos Hermanos Menu." Creates real, tested recipes inspired by fictional universes.
 4. **Recipe Roulette** — Spin a virtual globe to land on random countries, then get authentic recipes with stunning food photography, ingredient translations, and cultural Wikipedia entries about that cuisine's history. 
 
-## 🗳️ Step 2.1: Select the Top Three
+##  Step 2.1: Select the Top Three
 
 > Quick vote: each member gets **3 votes** 
 
 | Idea | Votes (✓) | Voters |
 |------|-----------|--------|
-| [Idea A] | ✓✓✓ | [N1, N2, N3] |
-| [Idea B] | ✓✓ | [N2, N3] |
-| [Idea C] | ✓ | [N1] |
-| ... |  |  |
+| Grocery Helper | ✓✓✓ | [N1, N2, N3] |
+| Commute Helper | ✓✓ | [N2, N3] |
+| Playlist Creator | ✓ | [N1] |
+| Music Media | ✓ | [N1] |
+| Routine Router | ✓ | [N1] |
+| Study Buddy | ✓ | [N1] |
+| Leftover Ingredients App | ✓ | [N1] |
+| Wikipedia Locations Travel App | ✓ | [N1] |
+| Cookbook Universe | ✓ | [N1] |
+| Idea 10 | ✓ | [N1] |
 
 **Top 3 selected:** **[Idea 1] · [Idea 2] · [Idea 3]**
 

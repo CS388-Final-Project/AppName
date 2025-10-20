@@ -1,11 +1,13 @@
 #  Activity 1: App Idea Brainstorming
 
 ---
-#Table of Contents
+##  Table of Contents
 
 > Each member adds ideas (Step 1), the team narrows to a Top 3 (Step 2.1), evaluates with the rubric (Step 2.2), and decides the final app (Step 2.3).
 
-## 👥 Team
+---
+
+##  Team
 
 | Name | Role (optional) | GitHub | Email |
 |------|------------------|--------|-------|
@@ -47,11 +49,11 @@
 
 ---
 
-## 🧮 Step 2.2: Evaluate Top 3 (App Evaluation Criteria)
+##  Step 2.2: Evaluate Top 3 (App Evaluation Criteria)
 
 > Rate each idea on **Mobile / Story / Market / Habit / Scope** (1–5), add notes, and check **API availability**.
 
-### 📱 Evaluation Rubric (what to consider)
+###  Evaluation Rubric (what to consider)
 
 - **Mobile:** Uniquely mobile (maps, camera, location, audio, sensors, push, real-time)? Try for **2+** native capabilities.
 - **Story:** Clear value; compelling to the audience; peers would “get it”.
@@ -77,7 +79,7 @@
 - **Cost:** Free ☐  Freemium ☐  Paid ☐
 - **Limits:** [rate limits / auth / quotas]
 - **Data fit:** [Does the API provide the core data you need?]
-- **Feasibility verdict:** ✅ Viable / ⚠️ Risky / ❌ Not viable
+- **Feasibility verdict:**  Viable / Risky /  Not viable
 
 **Total (out of 25):** **__ / 25**
 
@@ -93,7 +95,7 @@
 
 ---
 
-## 🏁 Step 2.3: Final Decision
+##  Step 2.3: Final Decision
 
 **[Final App Title]**
 

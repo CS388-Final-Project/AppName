@@ -41,22 +41,22 @@
 
 | Idea | Votes (✓) | Voters |
 |------|-----------|--------|
-| Grocery Helper | ✓✓✓ | [N1, N2, N3] |
-| Commute Helper | ✓✓ | [N2, N3] |
-| Playlist Creator | ✓ | [N1] |
-| Music Media | ✓ | [N1] |
-| Routine Router | ✓ | [N1] |
-| Study Buddy | ✓ | [N1] |
-| Leftover Ingredients App | ✓ | [N1] |
-| Wikipedia Locations Travel App | ✓ | [N1] |
-| Cookbook Universe | ✓ | [N1] |
-| Recipe Roulette | ✓ | [N1] |
+| Grocery Helper | | |
+| Commute Helper |  | |
+| Playlist Creator | ✓✓✓ | Keegan, Michael, Hegel |
+| Music Media | ✓✓✓ | Keegan, Michael, Hegel|
+| Routine Router | ✓ | Michael |
+| Study Buddy |  | |
+| Leftover Ingredients App |  | |
+| Wikipedia Locations Travel App | ✓✓ | Keegan, Hegel |
+| Cookbook Universe |  |  |
+| Recipe Roulette |  |  |
 
-**Top 3 selected:** **[Idea 1] · [Idea 2] · [Idea 3]**
+**Top 3 selected:** ** Playlist Creator · Music Media · Wikipedia Locations Travel App **
 
 ---
 
-##  Step 2.2: Evaluate Top 3 (App Evaluation Criteria)
+##  Step 2.2: Evaluate Top 3 
 
 > Rate each idea on **Mobile / Story / Market / Habit / Scope** (1–5), add notes, and check **API availability**.
 
@@ -93,12 +93,46 @@
 ---
 
 ### Idea #2 — **[Title]**
-*(Repeat the same evaluation table and API check as above.)*
+**One-liner:** *[Who does what to solve what problem?]*
+
+| Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
+|-----------|---|---|---|---|---|------|
+| **Mobile** | ☐ | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] |
+| **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
+| **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
+| **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |
+| **Scope**  | ☐ | ☐ | ☐ | ☐ | ☐ | [MVP feasibility; risks; timeline confidence] |
+
+**API Check (required):**
+- Candidate APIs: [API 1 link], [API 2 link]
+- **Cost:** Free ☐  Freemium ☐  Paid ☐
+- **Limits:** [rate limits / auth / quotas]
+- **Data fit:** [Does the API provide the core data you need?]
+- **Feasibility verdict:**  Viable / Risky /  Not viable
+
+**Total (out of 25):** **__ / 25**
 
 ---
 
 ### Idea #3 — **[Title]**
-*(Repeat the same evaluation table and API check as above.)*
+**One-liner:** *[Who does what to solve what problem?]*
+
+| Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
+|-----------|---|---|---|---|---|------|
+| **Mobile** | ☐ | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] |
+| **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
+| **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
+| **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |
+| **Scope**  | ☐ | ☐ | ☐ | ☐ | ☐ | [MVP feasibility; risks; timeline confidence] |
+
+**API Check (required):**
+- Candidate APIs: [API 1 link], [API 2 link]
+- **Cost:** Free ☐  Freemium ☐  Paid ☐
+- **Limits:** [rate limits / auth / quotas]
+- **Data fit:** [Does the API provide the core data you need?]
+- **Feasibility verdict:**  Viable / Risky /  Not viable
+
+**Total (out of 25):** **__ / 25**
 
 ---
 

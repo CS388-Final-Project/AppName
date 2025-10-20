@@ -1,13 +1,9 @@
----
-title: Activity 1 — App Idea Brainstorming
-tags: mobile, brainstorming, hackmd, team
----
-
 #  Activity 1: App Idea Brainstorming
 
-[TOC]
+---
+#Table of Contents
 
-> Use this doc collaboratively in HackMD. Each member adds ideas (Step 1), the team narrows to a Top 3 (Step 2.1), evaluates with the rubric (Step 2.2), and decides the final app (Step 2.3).
+> Each member adds ideas (Step 1), the team narrows to a Top 3 (Step 2.1), evaluates with the rubric (Step 2.2), and decides the final app (Step 2.3).
 
 ## 👥 Team
 

@@ -26,10 +26,10 @@ tags: mobile, brainstorming, hackmd, team
 2. **Commute Helper** — This app will be used by people everyday who need to time out their commute to get to their destination on time. This would communicate with a map API and parking API that would be able to let the user know exactly when they need to leave to arrive on time.
 3. **Idea Title #3** — *description*
 
-### Member: [Name]
-1. **Idea Title #1** — *description*
-2. **Idea Title #2** — *description*
-3. **Idea Title #3** — *description*
+### Member: Michael McGillycuddy
+1. **Music Media** — This app acts as a social media app, centered on music where users upload an image of themselves throughout the day, and compliment it with a song the they feel fits the mood of that day. It involves location data which ultimately compiles the top songs that people on the platform are listening to that day, and the top songs in your area. It gives you the option to look at more features about popular songs so that users can get more information so users can decide whether they want to add it to their playlist.
+2. **Routine Router"** — This app takes in user data regarding daily routines each day throughout the week, and stores the data in a database. The app then compiles an optimized daily routine, to help the user visualize what their "perfect day" looks like. The app uses API data to compare user habits with general habits and also logs these habits for users to refer to.
+3. **Study Buddy** — This app is meant to help users study more efficiently by allowing them to choose the topic/subject they are studying for, and the app compiles study resources including video links, article links, and other helpful tools that the user can use for their own desires. It also features a rating system in which users can rate the resources and subsequently make it so that higher rated resources are prioritized.
 
 ### Member: [Name]
 1. **Idea Title #1** — *description*

@@ -31,8 +31,9 @@
 
 ### Member: Hegel Guevara
 1. **Leftover Ingredients App** — User inputs a list of ingredients that they already have and the app will give them a list of foods that they can make along with the exact recipies to follow. 
-2. **Wikipedia Locations Travel App** — App that gives photos, historical facts, and current weather reports on a location. The user can swipe through locations like a dating app so they can build a bucket list of locations they would like to visit 
-3. **Idea Title #3** — *description*
+2. **Wikipedia Locations Travel App** — App that gives photos, historical facts, and current weather reports on a location. The user can swipe through locations like a dating app so they can build a bucket list of locations they would like to visit. 
+3. **Cookbook Universe** — Fictional cookbook generator based on movies and games. "The Hobbit's Second Breakfast Guide," "Final Fantasy Potions IRL," "Breaking Bad's Los Pollos Hermanos Menu." Creates real, tested recipes inspired by fictional universes.
+4. **Recipe Roulette** — Spin a virtual globe to land on random countries, then get authentic recipes with stunning food photography, ingredient translations, and cultural Wikipedia entries about that cuisine's history. 
 
 ## 🗳️ Step 2.1: Select the Top Three
 

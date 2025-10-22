@@ -13,7 +13,7 @@
 |------|------------------|--------|-------|
 | Keegan Wooding | Developer/Designer | @kwooding | krw6@njit.edu |
 | [Name] | [Role] | @[github] | [email] |
-| [Name] | [Role] | @[github] | [email] |
+| Hegel Guevara | Developer/Designer | @HGuevara10 | hg326@njit.edu |
 
 ---
 
@@ -119,20 +119,20 @@
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** | [x] | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] location |
-| **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
-| **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
-| **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |
-| **Scope**  | ☐ | ☐ | ☐ | ☐ | ☐ | [MVP feasibility; risks; timeline confidence] |
+| **Mobile** | [x] | ☐ | ☐ | ☐ | ☐ | location, camera |
+| **Story**  | ☐ | ☐ | ☐ | [x] | ☐ | makes discovering different locations easy & accessible for everyone |
+| **Market** | ☐ | ☐ | ☐ | [x] | ☐ | Appeals to travelers, students, and anyone curious about world locations |
+| **Habit**  | ☐ | ☐ | [x] | ☐ | ☐ | Weekly usage; users can explore new places and update their bucket list regularly |
+| **Scope**  | ☐ | ☐ | [x] | ☐ | ☐ | MVP feasible, can start with Wikipedia + weather API; moderate complexity integrating image sources |
 
 **API Check (required):**
-- Candidate APIs: [API 1 link], [API 2 link]
-- **Cost:** Free ☐  Freemium ☐  Paid ☐
-- **Limits:** [rate limits / auth / quotas]
-- **Data fit:** [Does the API provide the core data you need?]
-- **Feasibility verdict:**  Viable / Risky /  Not viable
+- Candidate APIs: https://www.mediawiki.org/wiki/API:Action_API, https://openweathermap.org/api
+- **Cost:** Free [x]  Freemium ☐  Paid ☐
+- **Limits:** Wikipedia (no auth, generous rate limits); OpenWeatherMap (60 calls/minute on free tier);
+- **Data fit:** Yes — provides the core content (facts, weather, and photos) needed for the app’s functionality
+- **Feasibility verdict:**  Viable
 
-**Total (out of 25):** **__ / 25**
+**Total (out of 25):** **_16_ / 25**
 
 ---
 

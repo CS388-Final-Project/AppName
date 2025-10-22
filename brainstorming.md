@@ -3,7 +3,14 @@
 ---
 ##  Table of Contents
 
-> Each member adds ideas (Step 1), the team narrows to a Top 3 (Step 2.1), evaluates with the rubric (Step 2.2), and decides the final app (Step 2.3).
+1.) [Generate New Ideas](#GenerateNewIdeas)
+    
+2.1) [Select the Top 3](#SelectTheTop3)
+
+2.2) [Evaluate Top 3](#EvaulateTop3)
+
+3) [Final Selection](#FinalSelection)
+
 
 ---
 
@@ -12,8 +19,8 @@
 | Name | Role (optional) | GitHub | Email |
 |------|------------------|--------|-------|
 | Keegan Wooding | Developer/Designer | @kwooding | krw6@njit.edu |
+| Michael McGillycuddy | Developer/Designer | @mikemcg33 | mkm@njit.edu |
 | [Name] | [Role] | @[github] | [email] |
-| Hegel Guevara | Developer/Designer | @HGuevara10 | hg326@njit.edu |
 
 ---
 
@@ -52,7 +59,7 @@
 | Cookbook Universe |  |  |
 | Recipe Roulette |  |  |
 
-**Top 3 selected:** ** Playlist Creator · Music Media · Wikipedia Locations Travel App **
+**Top 3 selected:** **Playlist Creator · Music Media · Wikipedia Locations Travel App**
 
 ---
 
@@ -70,47 +77,47 @@
 
 ---
 
-### Idea #1 — **PLaylist Creator**
-**One-liner:** *[Who does what to solve what problem?]*
+### Idea #1 — **Playlist Creator**
+The idea of this app is to make finding new music fun and engaging.
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** | ☐ | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] |
-| **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
-| **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
-| **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |
-| **Scope**  | ☐ | ☐ | ☐ | ☐ | ☐ | [MVP feasibility; risks; timeline confidence] |
+| **Mobile** |  | X |  |  | |  | This app uses Audio to display snippets of songs to the user for them to listen to|
+| **Story**  | | | | X | | Music is a key experience in life and this app provides ways to find more music |
+| **Market** | | | | | X | Music is a worldwide interest and people want new ways to find music |
+| **Habit**  | | | | | X | Can be used everyday and users would be on everyday that they want to discover new music |
+| **Scope**  | | | X | | | This is feasible to complete within the given time frame for the basic features but adding more complex uses may take too much time |
 
 **API Check (required):**
-- Candidate APIs: [API 1 link], [API 2 link]
-- **Cost:** Free ☐  Freemium ☐  Paid ☐
-- **Limits:** [rate limits / auth / quotas]
-- **Data fit:** [Does the API provide the core data you need?]
-- **Feasibility verdict:**  Viable / Risky /  Not viable
+- Candidate APIs: (https://developer.spotify.com/documentation/web-api), (https://www.last.fm/api)
+- **Cost:** Free
+- **Limits:** These both have throttling limits that only allow so many requests in a given time frame. Spotify also can have depreciated audio for certain tracks so it is not ideal to use it for every part.
+- **Data fit:** These APIs give us information on artist/music, audio features, similar artist and user preferences
+- **Feasibility verdict:**  Viable
 
-**Total (out of 25):** **__ / 25**
+**Total (out of 25):** **19 / 25**
 
 ---
 
 ### Idea #2 — **MusicMedia**
-**One-liner:** *[Who does what to solve what problem?]*
+**One-liner:** *Users interact over social media to share favorite songs, make it easier to discover music, and to connect with one another online*
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** | ☐ | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] |
-| **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
-| **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
-| **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |
-| **Scope**  | ☐ | ☐ | ☐ | ☐ | ☐ | [MVP feasibility; risks; timeline confidence] |
+| **Mobile** | ☐ | ☐ | ☐ | ☐ | x | This app uses a camera to get images of users at various parts of the day. It uses location data to access where the user is from and group songs by location. It uses audio to playback music from the platform. Finally, it uses push notifications to notify users of other users activity.  |
+| **Story**  | ☐ | ☐ | x | ☐ | ☐ | The value of this app is clear to our audience. It gives music lovers an easy way to connect with others and to discover more music through a social media outlet. We expect people to respond well to this product idea given that social media is so addictive and a music is a factor that is part of a majority of peoples lives. |
+| **Market** | ☐ | ☐ | x | ☐ | ☐ | The market for this app is reasonably sized. We would be targeting teens, and people in their 20's-30's who are already consumed by social media. As time goes on we will scale the application to older age groups that are technologically proficient.The app provides value to specifically highschool/college students who are looking to connect with peers through shared interests. |
+| **Habit**  | ☐ | ☐ | ☐ | ☐ | x | As does every other social media app, this app will be naturally addictive. Users will frequently use this app to make posts, and to view other peoples posts throughout the day. The average user would be inclined to create on our app by interacting on a day to day basis and adding to the statistics of the application. |
+| **Scope**  | ☐ | ☐ | ☐ | ☐ | x | The scope of this app is reasonable. It will be challenging to create this app, however, the core functionality of this app should be pretty straight forward. The complexity of this app comes when we add various features, so a stripped down version would still be interesting. Our goal is to implement as many features of the application  |
 
 **API Check (required):**
-- Candidate APIs: [API 1 link], [API 2 link]
-- **Cost:** Free ☐  Freemium ☐  Paid ☐
-- **Limits:** [rate limits / auth / quotas]
-- **Data fit:** [Does the API provide the core data you need?]
-- **Feasibility verdict:**  Viable / Risky /  Not viable
+- Candidate APIs: (https://developer.spotify.com/documentation/web-api), (https://developers.google.com/maps/documentation/places/web-service)
+- **Cost:** Free ☐  Freemium x  Paid ☐
+- **Limits:** For the spotify API, the limit is at a rate of about 10 requests a second per user, and requires OAuth 2.0 for most end points. The google maps API allows for about 1000 requests/day and requires an API key from Google Cloud Console.
+- **Data fit:** The spotify API provides, song titles, artists, genre, previews of music, playlists, and listening data. This is more than what we are looking for. The google mapes api provides data regarding locations, and cities. It may be a bit challenging accessing user location data.
+- **Feasibility verdict:**  Viable
 
-**Total (out of 25):** **__ / 25**
+**Total (out of 25):** **21 / 25**
 
 ---
 
@@ -119,11 +126,11 @@
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** | [x] | ☐ | ☐ | ☐ | ☐ | location, camera |
-| **Story**  | ☐ | ☐ | ☐ | [x] | ☐ | makes discovering different locations easy & accessible for everyone |
-| **Market** | ☐ | ☐ | ☐ | [x] | ☐ | Appeals to travelers, students, and anyone curious about world locations |
-| **Habit**  | ☐ | ☐ | [x] | ☐ | ☐ | Weekly usage; users can explore new places and update their bucket list regularly |
-| **Scope**  | ☐ | ☐ | [x] | ☐ | ☐ | MVP feasible, can start with Wikipedia + weather API; moderate complexity integrating image sources |
+| **Mobile** | ☐ | x | ☐ | ☐ | ☐ | location, camera |
+| **Story**  | ☐ | ☐ | ☐ | x | ☐ | makes discovering different locations easy & accessible for everyone |
+| **Market** | ☐ | ☐ | ☐ | x | ☐ | Appeals to travelers, students, and anyone curious about world locations |
+| **Habit**  | ☐ | ☐ | x | ☐ | ☐ | Weekly usage; users can explore new places and update their bucket list regularly |
+| **Scope**  | ☐ | ☐ | x | ☐ | ☐ | MVP feasible, can start with Wikipedia + weather API; moderate complexity integrating image sources |
 
 **API Check (required):**
 - Candidate APIs: https://www.mediawiki.org/wiki/API:Action_API, https://openweathermap.org/api
@@ -136,32 +143,38 @@
 
 ---
 
-##  Step 2.3: Final Decision
+##  Step 3: Final Decision
 
-**[Final App Title]**
+**Music Media**
 
-**Why we chose it (tie back to criteria):**
-- **Mobile:** [e.g., uses camera + location + push]
-- **Story:** [clear value to [audience]]
-- **Market:** [defined audience; strong niche; or broad appeal]
-- **Habit:** [expected usage frequency; creation loops]
-- **Scope:** [feasible MVP by course deadline; clear roadmap]
+**Why we chose it:**
+- **Mobile:** This app uses a camera to get images of users at various parts of the day. It uses location data to access where the user is from and group songs by location. It uses audio to playback music from the platform. Finally, it uses push notifications to notify users of other users activity. 
+- **Story:** The value of this app is clear to our audience. It gives music lovers an easy way to connect with others and to discover more music through a social media outlet. We expect people to respond well to this product idea given that social media is so addictive and a music is a factor that is part of a majority of peoples lives.
+- **Market:** The market for this app is reasonably sized. We would be targeting teens, and people in their 20's-30's who are already consumed by social media. As time goes on we will scale the application to older age groups that are technologically proficient. The app provides value to specifically highschool/college students who are looking to connect with peers through shared interests.
+- **Habit:** As does every other social media app, this app will be naturally addictive. Users will frequently use this app to make posts, and to view other peoples posts throughout the day. The average user would be inclined to create on our app by interacting on a day to day basis and adding to the statistics of the application.
+- **Scope:** The scope of this app is reasonable. It will be challenging to create this app, however, the core functionality of this app should be pretty straight forward. The complexity of this app comes when we add various features, so a stripped down version would still be interesting. Our goal is to implement as many features of the application.
 
 **Risks & Mitigations:**
-- Risk 1 → Mitigation
-- Risk 2 → Mitigation
+- Being Able to access the proper API data → Use multiple APIs that perform the same tasks and see which ones perform the best on the tasks that we need. Try to overlap strengths if needed 
+- Utilizing/testing sensor data → Use alternative location API's that are more compatible with our application. If it comes to it we will get user data through user input. 
 
 **MVP (Week 1–2):**
-- [Feature A], [Feature B], [Feature C]
+- User authentication and profile setup (create account, set username, add profile picture)
+- Music post creation (upload or link a song, optionally add a photo and caption)
+- Feed display (scoll interface which shows posts from nearby users or global feed)
 
 **Stretch Goals (if time):**
-- [Feature X], [Feature Y]
+- "Follow Friend" feature to allow you to permanently connect with other users with similiar music tastes. 
+
+- Get more in depth user data for personal history. ie.) Show what artists and songs the user listened to the most and show a pop up weekly to show the user this data
 
 ---
 
-> Add any relevant links (docs, API refs, sketches) below:
-- [Link 1]
-- [Link 2]
+> Relevant links below:
+
+-(https://developer.spotify.com/documentation/web-api), 
+
+-(https://developers.google.com/maps/documentation/places/web-service)
 
 ---
 

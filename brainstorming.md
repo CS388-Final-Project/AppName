@@ -115,11 +115,11 @@
 ---
 
 ### Idea #3 — **Wikipedia Travel Locations**
-**One-liner:** *[Who does what to solve what problem?]*
+**One-liner:** *gives photos, historical facts, and current weather reports, and allowing the user to swipe through locations so they can build a bucket list of locations they would like to visit.*
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** | ☐ | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] |
+| **Mobile** | [x] | ☐ | ☐ | ☐ | ☐ | [Which mobile features? (maps/camera/location/sensors/push/realtime)] location |
 | **Story**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Why it matters; who cares; quick pitch] |
 | **Market** | ☐ | ☐ | ☐ | ☐ | ☐ | [Audience size; niche value; who are users] |
 | **Habit**  | ☐ | ☐ | ☐ | ☐ | ☐ | [Daily/weekly usage; creation vs consumption] |

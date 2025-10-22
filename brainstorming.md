@@ -70,7 +70,7 @@
 
 ---
 
-### Idea #1 — **[Title]**
+### Idea #1 — **PLaylist Creator**
 **One-liner:** *[Who does what to solve what problem?]*
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
@@ -92,7 +92,7 @@
 
 ---
 
-### Idea #2 — **[Title]**
+### Idea #2 — **MusicMedia**
 **One-liner:** *[Who does what to solve what problem?]*
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
@@ -114,7 +114,7 @@
 
 ---
 
-### Idea #3 — **[Title]**
+### Idea #3 — **Wikipedia Travel Locations**
 **One-liner:** *[Who does what to solve what problem?]*
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |

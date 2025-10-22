@@ -20,7 +20,7 @@
 |------|------------------|--------|-------|
 | Keegan Wooding | Developer/Designer | @kwooding | krw6@njit.edu |
 | Michael McGillycuddy | Developer/Designer | @mikemcg33 | mkm@njit.edu |
-| [Name] | [Role] | @[github] | [email] |
+| Hegel Guevara | Developer/Designer | @HGuevara10 | hg326@njit.edu |
 
 ---
 

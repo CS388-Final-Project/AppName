@@ -82,7 +82,7 @@ The idea of this app is to make finding new music fun and engaging.
 
 | Criterion | 1 | 2 | 3 | 4 | 5 | Notes |
 |-----------|---|---|---|---|---|------|
-| **Mobile** |  | X |  |  | |  | This app uses Audio to display snippets of songs to the user for them to listen to|
+| **Mobile** |  | X |  |  | | This app uses Audio to display snippets of songs to the user for them to listen to | 
 | **Story**  | | | | X | | Music is a key experience in life and this app provides ways to find more music |
 | **Market** | | | | | X | Music is a worldwide interest and people want new ways to find music |
 | **Habit**  | | | | | X | Can be used everyday and users would be on everyday that they want to discover new music |

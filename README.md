@@ -66,7 +66,10 @@
 
 ## Wireframes
 
-[Add picture of your hand sketched wireframes in this section] <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+[Add picture of your hand sketched wireframes in this section] <img src="https://github.com/user-attachments/assets/4160ad8b-da04-4225-9bd8-a38ccafc3ec8" width=600>
+
+
+
 
 <br>
 

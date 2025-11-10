@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "930776401171",
+    "project_id": "musicmedia-9a9ef",
+    "storage_bucket": "musicmedia-9a9ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930776401171:android:f5fa91e6952232e1a386e6",
+        "android_client_info": {
+          "package_name": "com.example.cs388finalproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7g1AmDhnIpXHI8IAp86xzASsnZaSfoAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

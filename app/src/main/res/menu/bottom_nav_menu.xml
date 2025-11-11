@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/feedFragment"
+        android:icon="@drawable/ic_home"
+        android:title="Feed" />
+    <item
+        android:id="@+id/recommendationsFragment"
+        android:icon="@drawable/ic_recommend"
+        android:title="Recommendations" />
+    <item
+        android:id="@+id/friendsFragment"
+        android:icon="@drawable/ic_friends"
+        android:title="Friends" />
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile" />
+</menu>

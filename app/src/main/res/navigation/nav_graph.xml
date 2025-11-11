@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/feedFragment">
+
+    <fragment
+        android:id="@+id/feedFragment"
+        android:name="com.example.cs388finalproject.FeedFragment"
+        android:label="Feed" />
+
+    <fragment
+        android:id="@+id/recommendationsFragment"
+        android:name="com.example.cs388finalproject.RecommendationsFragment"
+        android:label="Recommendations" />
+
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.example.cs388finalproject.FriendsFragment"
+        android:label="Friends" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.cs388finalproject.ProfileFragment"
+        android:label="Profile" />
+</navigation>

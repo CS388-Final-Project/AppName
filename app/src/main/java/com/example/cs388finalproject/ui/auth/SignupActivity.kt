@@ -47,11 +47,11 @@ class SignupActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 val uid = result.user?.uid ?: return@addOnSuccessListener toast("No UID?")
                 val profile = UserProfile(uid = uid, email = email, username = username)
+
                 db.collection("users").document(uid).set(profile)
                     .addOnSuccessListener {
                         toast("Account created!")
-                        // go to main/home screen
-                        startActivity(Intent(this, /* MainActivity::class.java */ LoginActivity::class.java))
+                        startActivity(Intent(this, LoginActivity::class.java))
                         finish()
                     }
                     .addOnFailureListener {
@@ -65,5 +65,6 @@ class SignupActivity : AppCompatActivity() {
             }
     }
 
-    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun toast(msg: String) =
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 }

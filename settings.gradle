@@ -4,13 +4,10 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    // Keep plugin versions here (so you can just apply them in modules)
-    plugins {
-        id("com.google.gms.google-services") version "4.4.2" apply false
-    }
 }
 
 dependencyResolutionManagement {
+    // Repositories defined here are the single source of truth
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()

@@ -35,24 +35,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CS388FinalProject">
+
+        <!-- Launcher Activity (Main screen of your app) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.auth.LoginActivity">
+        <!-- Login Activity: needs exported=true because it has an intent-filter -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.auth.SignupActivity" />
+        <!-- Signup Activity -->
+        <activity
+            android:name=".ui.auth.SignupActivity"
+            android:exported="false" />
     </application>
-
 </manifest>

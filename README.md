@@ -101,8 +101,9 @@ this section]
 <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
 
 ## Issue cards
+<img width="1895" height="902" alt="Sprint1SS" src="https://github.com/user-attachments/assets/2022975c-e234-43fe-a233-da2614b974b2" />
 
-- [Add screenshot of your Project Board with the issues that you've been working on for this unit's milestone] <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+
 - [Add screenshot of your Project Board with the issues that you're working on in the **NEXT sprint**. It should include issues for next unit with assigned owners.] <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
 
 ## Issues worked on this sprint

@@ -65,8 +65,9 @@ class LoginActivity : AppCompatActivity() {
                         toast("Wrong credentials")
                     }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 setLoading(false)
+                toast("Login failed: ${e.message}")
                 toast("Login failed")
             }
     }

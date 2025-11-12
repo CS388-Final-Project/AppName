@@ -98,17 +98,23 @@ The goal of this app is to connect people through music. The main feature of the
 
 [Add screenshot of your Project Board with three milestones visible in
 this section]
-<img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+<img width="1800" height="583" alt="MilestoneSS" src="https://github.com/user-attachments/assets/d1428918-8d03-4531-8ed5-6bfb34ef7825" />
+
 
 ## Issue cards
 <img width="1895" height="902" alt="Sprint1SS" src="https://github.com/user-attachments/assets/2022975c-e234-43fe-a233-da2614b974b2" />
 
 
-- [Add screenshot of your Project Board with the issues that you're working on in the **NEXT sprint**. It should include issues for next unit with assigned owners.] <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+<img width="1897" height="911" alt="Sprint2SS" src="https://github.com/user-attachments/assets/75713be6-570e-4e6d-98da-eea3351828cf" />
+
 
 ## Issues worked on this sprint
 
-- List the issues you completed this sprint
+- Project Setup: This was the general setup of the project that would allow us to move forward cleanly and smoothly. This was setting up Android Studio and getting the necessary permissions and dependencies that we will at least need to move forward with the project and making sure that it has the proper functionality.
+- App Navigation: This was adding a Navigation bar to our app that would allow for users to transition between pages on the app easily.
+- Database Setup: For this we set up a firebase and room database taht would allow for us to take in certain data that we would need to save from the user such as a username and a password that they sign up with that will allow them to login to their same account later.
+- User Authentication: This was the process of setting up user sign up and login and making sure that users were able to make an account and then log in to that same account later on using their password.
+
 - [Add giphy that shows current build progress for Milestone 2. Note: We will be looking for progression of work between Milestone 2 and 3. Make sure your giphys are not duplicated and clearly show the change from Sprint 1 to 2.]
 
 <br>

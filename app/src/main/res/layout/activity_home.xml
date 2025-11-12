@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- App title -->
+    <TextView
+        android:id="@+id/tvWelcome"
+        android:text="Welcome to MusicMedia"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Go to Feed -->
+    <Button
+        android:id="@+id/btnFeed"
+        android:text="View Feed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Capture Post -->
+    <Button
+        android:id="@+id/btnCapture"
+        android:text="Create New Post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- View Profile -->
+    <Button
+        android:id="@+id/btnProfile"
+        android:text="View Profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Logout -->
+    <Button
+        android:id="@+id/btnLogout"
+        android:text="Log Out"
+        android:backgroundTint="#CC4444"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp" />
+
+</LinearLayout>

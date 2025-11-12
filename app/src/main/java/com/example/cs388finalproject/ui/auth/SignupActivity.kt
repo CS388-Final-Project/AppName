@@ -5,66 +5,61 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cs388finalproject.databinding.ActivitySignupBinding
-import com.example.cs388finalproject.model.UserProfile
-import com.example.cs388finalproject.util.Validators
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SignupActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivitySignupBinding
-    private val auth by lazy { FirebaseAuth.getInstance() }
-    private val db by lazy { FirebaseFirestore.getInstance() }
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSignup.setOnClickListener { submit() }
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
+        binding.btnSignup.setOnClickListener {
+            val email = binding.etEmail.text.toString()
+            val username = binding.etUsername.text.toString()
+            val pass = binding.etPassword.text.toString()
+            val confirm = binding.etConfirmPassword.text.toString()
+
+            if (pass != confirm) {
+                Toast.makeText(this, "Passwords don't match", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!isStrong(pass)) {
+                Toast.makeText(this, "Weak password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                    val user = hashMapOf(
+                        "uid" to uid,
+                        "email" to email,
+                        "username" to username
+                    )
+                    db.collection("users").document(uid).set(user)
+                    db.collection("users").document(uid).set(user)
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                } else Toast.makeText(this, it.exception?.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.tvToLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
     }
 
-    private fun submit() {
-        val username = binding.etUsername.text.toString().trim()
-        val email = binding.etEmail.text.toString().trim()
-        val pw = binding.etPassword.text.toString()
-        val pw2 = binding.etConfirm.text.toString()
-
-        if (username.isEmpty()) return toast("Username is required")
-        if (!Validators.isValidEmail(email)) return toast("Enter a valid email")
-        if (pw != pw2) return toast("Passwords do not match")
-        if (!Validators.isStrongPassword(pw)) {
-            return toast("Password must be 8+ chars with upper, lower, digit, special")
-        }
-
-        binding.btnSignup.isEnabled = false
-
-        auth.createUserWithEmailAndPassword(email, pw)
-            .addOnSuccessListener { result ->
-                val uid = result.user?.uid ?: return@addOnSuccessListener toast("No UID?")
-                val profile = UserProfile(uid = uid, email = email, username = username)
-
-                db.collection("users").document(uid).set(profile)
-                    .addOnSuccessListener {
-                        toast("Account created!")
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    }
-                    .addOnFailureListener {
-                        toast("Saved auth, but failed to save profile: ${it.message}")
-                        binding.btnSignup.isEnabled = true
-                    }
-            }
-            .addOnFailureListener {
-                toast("Signup failed: ${it.message}")
-                binding.btnSignup.isEnabled = true
-            }
+    private fun isStrong(p: String): Boolean {
+        val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}\$")
+        return regex.matches(p)
     }
-
-    private fun toast(msg: String) =
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 }

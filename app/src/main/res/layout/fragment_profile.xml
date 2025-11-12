@@ -10,4 +10,12 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="190dp"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="300dp"
+        android:text="Log Out" />
+
 </FrameLayout>

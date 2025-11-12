@@ -2,50 +2,57 @@ package com.example.cs388finalproject.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.example.cs388finalproject.databinding.ActivityLoginBinding
-import com.example.cs388finalproject.util.Validators
+import com.example.cs388finalproject.R
+import com.example.cs388finalproject.ui.home.HomeActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLoginBinding
-    private val auth by lazy { FirebaseAuth.getInstance() }
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        binding.btnLogin.setOnClickListener { login() }
-        binding.tvToSignup.setOnClickListener {
-            startActivity(Intent(this, SignupActivity::class.java))
+        auth = FirebaseAuth.getInstance()
+        if (auth.currentUser != null) {
+            startActivity(Intent(this, HomeActivity::class.java))
             finish()
+            return
+        }
+
+        setContentView(R.layout.activity_login)
+
+        val etEmail: EditText = findViewById(R.id.etEmail)
+        val etPassword: EditText = findViewById(R.id.etPassword)
+        val btnLogin: Button = findViewById(R.id.btnLogin)
+        val progress: ProgressBar = findViewById(R.id.progress)
+
+        btnLogin.setOnClickListener {
+            val email = etEmail.text.toString().trim()
+            val pw = etPassword.text.toString()
+
+            if (email.isEmpty()) return@setOnClickListener toast("Email required")
+            if (pw.isEmpty()) return@setOnClickListener toast("Password required")
+
+            progress.visibility = View.VISIBLE
+            btnLogin.isEnabled = false
+
+            auth.signInWithEmailAndPassword(email, pw)
+                .addOnSuccessListener {
+                    progress.visibility = View.GONE
+                    startActivity(Intent(this, HomeActivity::class.java))
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    progress.visibility = View.GONE
+                    btnLogin.isEnabled = true
+                    toast("Login failed: ${e.message}")
+                }
         }
     }
 
-    private fun login() {
-        val email = binding.etEmail.text.toString().trim()
-        val pw = binding.etPassword.text.toString()
-
-        if (!Validators.isValidEmail(email)) return toast("Enter a valid email")
-        if (pw.isEmpty()) return toast("Enter your password")
-
-        binding.btnLogin.isEnabled = false
-
-        auth.signInWithEmailAndPassword(email, pw)
-            .addOnSuccessListener {
-                toast("Welcome back!")
-                // Navigate to main screen
-                startActivity(Intent(this, /* MainActivity::class.java */ SignupActivity::class.java))
-                finish()
-            }
-            .addOnFailureListener {
-                toast("Login failed: ${it.message}")
-                binding.btnLogin.isEnabled = true
-            }
-    }
-
-    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
 }

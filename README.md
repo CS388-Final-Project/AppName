@@ -117,6 +117,12 @@ this section]
 
 - [Add giphy that shows current build progress for Milestone 2. Note: We will be looking for progression of work between Milestone 2 and 3. Make sure your giphys are not duplicated and clearly show the change from Sprint 1 to 2.]
 
+# Signing Up Demo
+https://github.com/user-attachments/assets/2bbb54a6-06ad-4ec6-ab68-26c5c6121866
+
+# Logging In Demo
+https://github.com/user-attachments/assets/646251b9-2fd3-4617-ab13-c500a814408b
+
 <br>
 
 # Milestone 3 - Build Sprint 2 (Unit 9)

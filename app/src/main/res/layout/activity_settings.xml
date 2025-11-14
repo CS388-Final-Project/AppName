@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#B8E3E9">
+
+    <ImageView
+        android:id="@+id/btn_back_arrow"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/outline_arrow_back_24"
+        android:contentDescription="Back" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Settings Page"
+        android:textSize="22sp"
+        android:textColor="#0B2E33" />
+
+</LinearLayout>

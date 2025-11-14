@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.cs388finalproject.databinding.FragmentProfileBinding
 import com.example.cs388finalproject.ui.auth.LoginActivity
+import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment() {
@@ -21,6 +22,7 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
+        // Logout button
         binding.btnLogout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
 
@@ -28,6 +30,13 @@ class ProfileFragment : Fragment() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
+
+        // ⭐ Settings button
+        binding.btnSettings.setOnClickListener {
+            val intent = Intent(requireActivity(), SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         return binding.root
     }
 

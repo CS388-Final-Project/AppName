@@ -68,7 +68,7 @@
                     android:id="@+id/tvUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="john_doe"
+                    android:text=""
                     android:textSize="15sp"
                     android:padding="10dp"
                     android:background="#93B1B5"
@@ -96,7 +96,6 @@
                     android:textColor="#0B2E33"
                     android:layout_marginTop="6dp" />
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,12 +109,14 @@
                     android:orientation="vertical"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
-                    android:layout_marginEnd="8dp"> <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="#93B1B5"
-                    android:layout_margin="6dp" />
+                    android:layout_marginEnd="8dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="#93B1B5"
+                        android:layout_margin="6dp" />
 
                 <TextView
                     android:id="@+id/song1"
@@ -128,7 +129,6 @@
                     android:textSize="16sp" />
 
             </LinearLayout>
-
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="130dp"
@@ -154,7 +154,6 @@
                         android:textSize="16sp" />
 
                 </LinearLayout>
-
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="130dp"
@@ -179,7 +178,6 @@
                         android:textSize="16sp" />
 
                 </LinearLayout>
-
             </LinearLayout>
 
             <Button
@@ -192,7 +190,5 @@
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
-
     </RelativeLayout>
-
 </ScrollView>

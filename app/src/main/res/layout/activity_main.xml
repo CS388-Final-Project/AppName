@@ -16,9 +16,15 @@
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav"
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_nav_menu" />
+        android:background="#4F7C82"
+        app:itemIconTint="@color/nav_item_colors"
+        app:itemTextColor="@color/nav_item_colors"
+        app:itemRippleColor="@color/nav_item_ripple"
+        app:menu="@menu/bottom_nav_menu"
+        />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

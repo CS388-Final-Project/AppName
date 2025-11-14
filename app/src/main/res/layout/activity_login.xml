@@ -2,47 +2,63 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
+    android:padding="24dp"
     android:background="#B8E3E9"
-    android:padding="20dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:text="MusicMedia"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#0B2E33"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 
     <EditText
         android:id="@+id/etUsername"
         android:hint="Username"
+        android:background="@drawable/input_field_background"
+        android:textColor="#0B2E33"
         android:inputType="textPersonName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <EditText
         android:id="@+id/etPassword"
         android:hint="Password"
+        android:background="@drawable/input_field_background"
+        android:textColor="#0B2E33"
         android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="20dp"/>
 
     <Button
         android:id="@+id/btnLogin"
         android:text="Log in"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#4F7C82"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/tvToSignup"
         android:text="Don't have an account? Sign up"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorPrimary"
-        android:layout_marginTop="12dp"
-        android:layout_gravity="center"
+        android:textColor="#0B2E33"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"/>
     <ProgressBar
         android:id="@+id/progress"
         android:visibility="gone"
+        android:layout_marginTop="16dp"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

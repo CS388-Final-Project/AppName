@@ -20,24 +20,12 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val fromLogin = intent.getBooleanExtra("fromLogin", false)
-        /*
-        * if (!fromLogin) {
-            // Force login on cold start
-            auth.signOut()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-            return
-        }
-        * */
-
         val currentUser = auth.currentUser
         if (currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
         }
-
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment

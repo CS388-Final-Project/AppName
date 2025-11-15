@@ -8,12 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.cs388finalproject.MainActivity
 import com.example.cs388finalproject.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestore // Keep import in case other functions need it
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private lateinit var db: FirebaseFirestore // Still initialized but not used in doLogin()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +21,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
+        db = FirebaseFirestore.getInstance() // Initialized
 
         binding.btnLogin.setOnClickListener { doLogin() }
 
@@ -32,44 +32,33 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun doLogin() {
-        val username = binding.etUsername.text.toString().trim()
+        // --- KEY CHANGE 1: Renamed variable to email ---
+        val email = binding.etUsername.text.toString().trim()
         val password = binding.etPassword.text.toString()
 
-        if (username.isEmpty() || password.isEmpty()) {
-            toast("Enter username and password")
+        if (email.isEmpty() || password.isEmpty()) {
+            toast("Enter email and password")
             return
         }
 
         setLoading(true)
 
-        // Find email by username
-        db.collection("users").whereEqualTo("username", username).limit(1).get()
-            .addOnSuccessListener { snap ->
-                if (snap.isEmpty) {
-                    setLoading(false)
-                    toast("User not found")
-                    return@addOnSuccessListener
-                }
-                val email = snap.documents.first().getString("email") ?: ""
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener {
-                        setLoading(false)
-                        startActivity(
-                            Intent(this, MainActivity::class.java)
-                                .putExtra("fromLogin", true)
-                        )
-                        finish()
-                    }
-                    .addOnFailureListener {
-                        setLoading(false)
-                        toast("Wrong credentials")
-                    }
-            }
-            .addOnFailureListener { e ->
+        // --- KEY CHANGE 2: Removed Firestore query and call Firebase Auth directly ---
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
                 setLoading(false)
-                toast("Login failed: ${e.message}")
-                toast("Login failed")
+                startActivity(
+                    Intent(this, MainActivity::class.java)
+                        .putExtra("fromLogin", true)
+                )
+                finish()
             }
+            .addOnFailureListener {
+                setLoading(false)
+                // Firebase Auth automatically provides helpful errors, "Wrong credentials" covers invalid email or password.
+                toast("Wrong credentials")
+            }
+        // --- End KEY CHANGE 2 ---
     }
 
     private fun setLoading(loading: Boolean) {

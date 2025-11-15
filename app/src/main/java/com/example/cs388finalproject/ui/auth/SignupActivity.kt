@@ -45,7 +45,6 @@ class SignupActivity : AppCompatActivity() {
                         "username" to username
                     )
                     db.collection("users").document(uid).set(user)
-                    db.collection("users").document(uid).set(user)
                     startActivity(Intent(this, LoginActivity::class.java))
                     finish()
                 } else Toast.makeText(this, it.exception?.message, Toast.LENGTH_SHORT).show()

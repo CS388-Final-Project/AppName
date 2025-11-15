@@ -2,11 +2,12 @@
     <item
         android:id="@+id/feedFragment"
         android:icon="@drawable/ic_home"
-        android:title="Feed" />
+        android:title="Feed"
+        />
     <item
         android:id="@+id/recommendationsFragment"
         android:icon="@drawable/ic_recommend"
-        android:title="Recommendations" />
+        android:title="Recommended" />
     <item
         android:id="@+id/friendsFragment"
         android:icon="@drawable/ic_friends"

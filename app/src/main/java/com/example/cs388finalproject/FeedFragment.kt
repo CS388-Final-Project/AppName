@@ -17,6 +17,12 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
+
+        val statsCard = binding.root.findViewById<com.example.cs388finalproject.CustomCardView>(R.id.card_stats_summary)
+        statsCard?.setCardData(
+            title = "Data is loading...",
+            description = "If you see this, the card is working!"
+        )
         return binding.root
     }
 

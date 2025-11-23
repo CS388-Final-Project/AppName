@@ -38,6 +38,8 @@
         <activity android:name=".ui.home.SettingsActivity"
             android:exported="false"
             android:label="Settings"/>
+        <activity android:name=".ui.CreatePostActivity"/>
+        <activity android:name=".ui.SongDetailActivity" />
 
     </application>
 

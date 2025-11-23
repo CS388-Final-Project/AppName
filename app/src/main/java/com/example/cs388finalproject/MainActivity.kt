@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.cs388finalproject.databinding.ActivityMainBinding
+import com.example.cs388finalproject.ProfileFragment
 import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.example.cs388finalproject.utils.LocationHelper
 import com.google.firebase.auth.FirebaseAuth
@@ -18,6 +19,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 
+// ---------- DATA MODELS ----------
+
 data class SpotifyProfile(
     val id: String,
     val displayName: String,
@@ -27,20 +30,27 @@ data class SpotifyProfile(
 data class SpotifyTrack(
     val id: String,
     val name: String,
-    val artist: String,
-    val imageUrl: String?
+    val artist: String?,
+    val albumName: String?,
+    val imageUrl: String?,
+    val durationMs: Int = 0,
+    val explicit: Boolean = false,
+    val previewUrl: String? = null
 )
 
 data class SpotifyState(
     val profile: SpotifyProfile,
-    val tracks: List<SpotifyTrack>
+    val topTracks: List<SpotifyTrack>,
+    val currentTrack: SpotifyTrack?
 )
+
+// ---------- MAIN ACTIVITY ----------
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var locationHelper: LocationHelper
+    lateinit var locationHelper: LocationHelper
 
     private val CLIENT_ID = "c1844ea7fb444fbe97d3bb3bce4bf19b"
     private val REDIRECT_URI = "musicmedia://callback"
@@ -50,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     private var spotifyState: SpotifyState? = null
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var refreshJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +82,8 @@ class MainActivity : AppCompatActivity() {
 
         locationHelper = LocationHelper(this)
     }
+
+    // ---------- SPOTIFY LOGIN ----------
 
     fun startSpotifyLogin() {
         val builder = AuthorizationRequest.Builder(
@@ -106,7 +119,13 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Spotify", "Access Token: $spotifyAccessToken")
 
                     locationHelper.requestLocation()
+
+                    // One-time profile + top tracks
                     fetchSpotifyProfileAndTopTracks()
+
+                    // Current track + auto-refresh
+                    fetchCurrentlyPlaying()
+                    startAutoRefresh()
                 }
                 AuthorizationResponse.Type.ERROR ->
                     Log.e("Spotify", "Auth error: ${response.error}")
@@ -115,9 +134,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isJson(text: String): Boolean {
-        return text.trim().startsWith("{") || text.trim().startsWith("[")
-    }
+    private fun isJson(text: String): Boolean =
+        text.trim().startsWith("{") || text.trim().startsWith("[")
+
+    // ---------- PROFILE + TOP TRACKS ----------
 
     private fun fetchSpotifyProfileAndTopTracks() {
         val token = spotifyAccessToken ?: return
@@ -126,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 val client = OkHttpClient()
 
-                // ------- PROFILE -------
+                // PROFILE
                 val profileRes = client.newCall(
                     Request.Builder()
                         .url("https://api.spotify.com/v1/me")
@@ -135,11 +155,7 @@ class MainActivity : AppCompatActivity() {
                 ).execute()
 
                 val profileBody = profileRes.body?.string().orEmpty()
-
-                if (!isJson(profileBody)) {
-                    Log.e("Spotify", "Profile response not JSON: $profileBody")
-                    return@launch
-                }
+                if (!isJson(profileBody)) return@launch
 
                 val profileJson = JSONObject(profileBody)
 
@@ -148,10 +164,10 @@ class MainActivity : AppCompatActivity() {
                     displayName = profileJson.optString("display_name", "Spotify User"),
                     imageUrl = profileJson.optJSONArray("images")
                         ?.optJSONObject(0)
-                        ?.optString("url", null)
+                        ?.optString("url")
                 )
 
-                // ------- TOP TRACKS -------
+                // TOP 3 TRACKS
                 val tracksRes = client.newCall(
                     Request.Builder()
                         .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
@@ -159,56 +175,129 @@ class MainActivity : AppCompatActivity() {
                         .build()
                 ).execute()
 
-                val tracksBody = tracksRes.body?.string().orEmpty()
+                val topBody = tracksRes.body?.string().orEmpty()
+                val topTracks = mutableListOf<SpotifyTrack>()
 
-                if (!isJson(tracksBody)) {
-                    Log.e("Spotify", "Tracks response not JSON: $tracksBody")
-                    withContext(Dispatchers.Main) {
-                        spotifyState = SpotifyState(profile, emptyList())
-                    }
-                    return@launch
-                }
-
-                val tracksJson = JSONObject(tracksBody)
-                val items = tracksJson.optJSONArray("items")
-
-                val tracks = mutableListOf<SpotifyTrack>()
-                if (items != null) {
-                    for (i in 0 until items.length()) {
-                        val t = items.getJSONObject(i)
-
-                        val track = SpotifyTrack(
-                            id = t.optString("id", ""),
-                            name = t.optString("name", ""),
-                            artist = t.optJSONArray("artists")
-                                ?.optJSONObject(0)
-                                ?.optString("name") ?: "",
-                            imageUrl = t.optJSONObject("album")
-                                ?.optJSONArray("images")
-                                ?.optJSONObject(0)
-                                ?.optString("url", null)
-                        )
-                        tracks.add(track)
+                if (isJson(topBody)) {
+                    val json = JSONObject(topBody)
+                    val items = json.optJSONArray("items")
+                    if (items != null) {
+                        for (i in 0 until items.length()) {
+                            val t = items.getJSONObject(i)
+                            topTracks.add(
+                                SpotifyTrack(
+                                    id = t.optString("id"),
+                                    name = t.optString("name"),
+                                    artist = t.optJSONArray("artists")
+                                        ?.optJSONObject(0)
+                                        ?.optString("name"),
+                                    albumName = t.optJSONObject("album")
+                                        ?.optString("name"),
+                                    imageUrl = t.optJSONObject("album")
+                                        ?.optJSONArray("images")
+                                        ?.optJSONObject(0)
+                                        ?.optString("url"),
+                                    durationMs = t.optInt("duration_ms"),
+                                    explicit = t.optBoolean("explicit"),
+                                    previewUrl = t.optString("preview_url")
+                                )
+                            )
+                        }
                     }
                 }
 
                 withContext(Dispatchers.Main) {
-                    spotifyState = SpotifyState(profile, tracks)
+                    val existingCurrent = spotifyState?.currentTrack
+                    spotifyState = SpotifyState(
+                        profile = profile,
+                        topTracks = topTracks,
+                        currentTrack = existingCurrent
+                    )
 
+                    // Update profile fragment UI if visible
                     val navHost =
                         supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
                     val current =
                         navHost.childFragmentManager.primaryNavigationFragment
-
                     if (current is ProfileFragment) {
-                        current.updateSpotifyUi(profile, tracks)
+                        current.updateSpotifyUi(profile, topTracks, animate = false)
                     }
                 }
 
             } catch (e: Exception) {
+                Log.e("Spotify", "Error fetching profile/top tracks: ${e.message}")
+            }
+        }
+    }
+
+    // ---------- CURRENTLY PLAYING ----------
+
+    private fun fetchCurrentlyPlaying() {
+        val token = spotifyAccessToken ?: return
+
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+
+                val res = client.newCall(
+                    Request.Builder()
+                        .url("https://api.spotify.com/v1/me/player/currently-playing")
+                        .addHeader("Authorization", "Bearer $token")
+                        .build()
+                ).execute()
+
+                val body = res.body?.string().orEmpty()
+                if (!isJson(body)) return@launch
+
+                val json = JSONObject(body)
+                val item = json.optJSONObject("item") ?: return@launch
+
+                val track = SpotifyTrack(
+                    id = item.optString("id"),
+                    name = item.optString("name"),
+                    artist = item.optJSONArray("artists")
+                        ?.optJSONObject(0)
+                        ?.optString("name"),
+                    albumName = item.optJSONObject("album")
+                        ?.optString("name"),
+                    imageUrl = item.optJSONObject("album")
+                        ?.optJSONArray("images")
+                        ?.optJSONObject(0)
+                        ?.optString("url"),
+                    durationMs = item.optInt("duration_ms"),
+                    explicit = item.optBoolean("explicit"),
+                    previewUrl = item.optString("preview_url")
+                )
+
+                Log.d("Spotify", "NOW PLAYING → ${track.name} — ${track.artist}")
+
                 withContext(Dispatchers.Main) {
-                    Log.e("Spotify", "Fetch error: ${e.message}")
+                    val existing = spotifyState
+                    spotifyState = if (existing == null) {
+                        SpotifyState(
+                            profile = SpotifyProfile("", "Spotify User", null),
+                            topTracks = emptyList(),
+                            currentTrack = track
+                        )
+                    } else {
+                        existing.copy(currentTrack = track)
+                    }
                 }
+
+            } catch (e: Exception) {
+                Log.e("Spotify", "Currently playing error: ${e.message}")
+            }
+        }
+    }
+
+    // ---------- AUTO REFRESH ----------
+
+    private fun startAutoRefresh() {
+        refreshJob?.cancel()
+        refreshJob = coroutineScope.launch {
+            while (isActive) {
+                fetchCurrentlyPlaying()
+                delay(5000) // every 5 seconds
             }
         }
     }
@@ -216,5 +305,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         coroutineScope.cancel()
+        refreshJob?.cancel()
     }
 }

@@ -17,6 +17,8 @@ import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.example.cs388finalproject.ui.SongDetailActivity
+
 
 class ProfileFragment : Fragment() {
 
@@ -53,6 +55,7 @@ class ProfileFragment : Fragment() {
         loadUserData()
         loadProfilePicture()
 
+        // Hide Spotify UI until connected
         binding.layoutTopTracks.visibility = View.GONE
 
         binding.btnSettings.setOnClickListener {
@@ -65,8 +68,9 @@ class ProfileFragment : Fragment() {
             (activity as? MainActivity)?.startSpotifyLogin()
         }
 
+        // ---- FIX: Use topTracks instead of tracks ----
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            updateSpotifyUi(state.profile, state.tracks, animate = false)
+            updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
 
         return binding.root
@@ -78,7 +82,7 @@ class ProfileFragment : Fragment() {
         loadProfilePicture()
 
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            updateSpotifyUi(state.profile, state.tracks, animate = false)
+            updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
     }
 
@@ -149,6 +153,7 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    // ---- FIXED VERSION: Uses topTracks ----
     fun updateSpotifyUi(
         profile: SpotifyProfile,
         tracks: List<SpotifyTrack>,
@@ -157,12 +162,19 @@ class ProfileFragment : Fragment() {
         binding.tvSpotifyName.text = "Spotify: ${profile.displayName}"
 
         if (!profile.imageUrl.isNullOrEmpty()) {
-            Glide.with(this).load(profile.imageUrl).circleCrop().into(binding.imgSpotifyAvatar)
+            Glide.with(this)
+                .load(profile.imageUrl)
+                .circleCrop()
+                .into(binding.imgSpotifyAvatar)
         }
 
         val t = tracks.take(3)
 
-        fun apply(i: Int, img: android.widget.ImageView, tv: android.widget.TextView) {
+        fun apply(
+            i: Int,
+            img: android.widget.ImageView,
+            tv: android.widget.TextView
+        ) {
             if (i >= t.size) {
                 tv.text = ""
                 img.setImageDrawable(null)
@@ -178,6 +190,33 @@ class ProfileFragment : Fragment() {
 
         binding.btnConnectSpotifyProfile.visibility = View.GONE
         binding.layoutTopTracks.visibility = View.VISIBLE
+
+        // ─────────────────────────────────────────────
+        // MAKE TOP 3 TRACKS CLICKABLE
+        // ─────────────────────────────────────────────
+        fun launchSongDetails(track: SpotifyTrack) {
+            val intent = Intent(requireContext(), SongDetailActivity::class.java)
+            intent.putExtra("songName", track.name)
+            intent.putExtra("artistName", track.artist)
+            intent.putExtra("albumName", track.albumName)
+            intent.putExtra("albumArtUrl", track.imageUrl)
+            intent.putExtra("durationMs", track.durationMs)
+            intent.putExtra("explicit", track.explicit)
+            intent.putExtra("previewUrl", track.previewUrl ?: "")
+            startActivity(intent)
+        }
+
+        // Track 1
+        binding.imgTrack1.setOnClickListener { if (t.isNotEmpty()) launchSongDetails(t[0]) }
+        binding.tvTrack1.setOnClickListener { if (t.isNotEmpty()) launchSongDetails(t[0]) }
+
+        // Track 2
+        binding.imgTrack2.setOnClickListener { if (t.size > 1) launchSongDetails(t[1]) }
+        binding.tvTrack2.setOnClickListener { if (t.size > 1) launchSongDetails(t[1]) }
+
+        // Track 3
+        binding.imgTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
+        binding.tvTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
     }
 
     override fun onDestroyView() {

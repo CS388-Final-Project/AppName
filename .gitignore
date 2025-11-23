@@ -1,53 +1,30 @@
-# === ANDROID / GRADLE ===
+# Android
+*.iml
+.gradle/
+local.properties
+/.idea/
+/build/
+app/build/
+**/build/
+
+# Android Studio
+/.idea/caches/
+/.idea/libraries/
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+
+# Gradle
 .gradle/
 build/
-**/build/
-!gradle-wrapper.jar
 
-# Local configuration
-local.properties
+# macOS
+.DS_Store
 
-# Log/Reports
-captures/
-output.json
-
-# Gradle caches
-.gradle/
-gradle-app.setting
-
-# === IDE (Android Studio / IntelliJ) ===
-.idea/
-*.iml
-*.ipr
-*.iws
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-
-# === NDK / CMake ===
-.externalNativeBuild
+# NDK / CMake
+.externalNativeBuild/
 .cxx/
 
-# === OS FILES ===
-.DS_Store
-Thumbs.db
-
-# === KOTLIN / JAVA ===
-*.class
-*.jar
-*.war
-*.ear
-
-# === ANDROID SIGNING ===
-*.keystore
-*.jks
-signing.properties
-
-# === LOGS ===
-*.log
-
-# === MISC ===
-buildOutputCleanup.lock
+# Ignore all problem reports
+build/reports/

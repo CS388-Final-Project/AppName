@@ -69,90 +69,6 @@
                 android:layout_marginTop="6dp"
                 android:layout_marginBottom="12dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:paddingHorizontal="6dp"> <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:layout_marginEnd="8dp">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="#93B1B5"
-                    android:layout_margin="6dp" />
-
-                <TextView
-                    android:id="@+id/setting_song1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Song 1"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#0B2E33"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:background="#93B1B5"
-                        android:layout_margin="6dp" />
-
-                    <TextView
-                        android:id="@+id/setting_song2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Song 2"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textColor="#0B2E33"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:layout_marginStart="8dp">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:background="#93B1B5"
-                        android:layout_margin="6dp" />
-
-                    <TextView
-                        android:id="@+id/setting_song3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Song 3"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textColor="#0B2E33"
-                        android:textSize="16sp" />
-                </LinearLayout>
-            </LinearLayout>
-
             <Button
                 android:id="@+id/btnSaveChanges"
                 android:layout_width="185dp"
@@ -173,6 +89,15 @@
             android:layout_marginTop="30dp"
             android:backgroundTint="#4F7C82"
             android:text="Change Account Password"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log Out"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#0B2E33"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>

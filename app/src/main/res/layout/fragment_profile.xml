@@ -9,33 +9,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/btnSettings"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/outline_settings_24"
-            android:backgroundTint="#0B2E33" />
-
+        <!-- SETTINGS + LOG OUT ROW -->
         <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="end">
+
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/outline_settings_24"
+                android:tint="#0B2E33" />
+        </LinearLayout>
+
+        <!-- MAIN COLUMN -->
+        <LinearLayout
+            android:id="@+id/mainContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:layout_below="@id/topBar">
 
+            <!-- PROFILE IMAGE -->
             <ImageView
                 android:id="@+id/imgProfilePhoto"
-                android:layout_width="185dp"
-                android:layout_height="185dp"
-                android:layout_marginTop="40dp"
-                android:background="@drawable/outline_circle_24"
+                android:layout_width="170dp"
+                android:layout_height="170dp"
+                android:src="@drawable/outline_account_circle_24"
                 android:contentDescription="Profile photo"
+                android:layout_marginTop="10dp"
                 android:padding="16dp" />
 
+            <!-- CHANGE PHOTO -->
             <Button
                 android:id="@+id/btnChangePhoto"
                 android:layout_width="wrap_content"
@@ -47,6 +59,7 @@
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="6dp" />
 
+            <!-- USER INFO CARD -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,8 +69,7 @@
                 android:background="@drawable/card_background">
 
                 <TextView
-                    android:id="@+id/tvUsernameLabel"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Username"
                     android:textStyle="bold"
@@ -68,7 +80,6 @@
                     android:id="@+id/tvUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text=""
                     android:textSize="15sp"
                     android:padding="10dp"
                     android:background="#93B1B5"
@@ -77,8 +88,7 @@
                     android:layout_marginBottom="12dp" />
 
                 <TextView
-                    android:id="@+id/tvEmailLabel"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Email"
                     android:textStyle="bold"
@@ -89,105 +99,151 @@
                     android:id="@+id/tvEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="user@example.com"
                     android:textSize="15sp"
                     android:padding="10dp"
                     android:background="#93B1B5"
                     android:textColor="#0B2E33"
                     android:layout_marginTop="6dp" />
             </LinearLayout>
-            <LinearLayout
+
+            <!-- SPOTIFY CONNECT BUTTON (shown when not connected) -->
+            <Button
+                android:id="@+id/btnConnectSpotifyProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="30dp"
-                android:paddingHorizontal="6dp">
+                android:text="Connect Spotify"
+                android:textAllCaps="false"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#1DB954"
+                android:textColor="@android:color/white" />
 
+            <!-- SPOTIFY SECTION (shown when connected) -->
+            <LinearLayout
+                android:id="@+id/layoutTopTracks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:visibility="gone">
+
+                <!-- Spotify header: avatar + name -->
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:layout_marginEnd="8dp">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:background="#93B1B5"
-                        android:layout_margin="6dp" />
-
-                <TextView
-                    android:id="@+id/song1"
+                    android:id="@+id/spotifyHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Song 1"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/imgSpotifyAvatar"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/outline_account_circle_24"
+                        android:contentDescription="Spotify avatar" />
+
+                    <TextView
+                        android:id="@+id/tvSpotifyName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Spotify Connected"
+                        android:layout_marginStart="8dp"
+                        android:textColor="#0B2E33"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <!-- Top tracks row -->
+                <LinearLayout
+                    android:id="@+id/topTracksRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#0B2E33"
-                    android:textSize="16sp" />
+                    android:layout_marginTop="16dp">
 
-            </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"> <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="#93B1B5"
-                    android:layout_margin="6dp" />
-
-                    <TextView
-                        android:id="@+id/song2"
-                        android:layout_width="match_parent"
+                    <!-- Track 1 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Song 2"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textColor="#0B2E33"
-                        android:textSize="16sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/imgTrack1"
+                            android:layout_width="90dp"
+                            android:layout_height="90dp"
+                            android:background="#CCCCCC"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/tvTrack1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            android:textColor="#0B2E33"
+                            android:textSize="13sp"
+                            android:layout_marginTop="6dp" />
+                    </LinearLayout>
+
+                    <!-- Track 2 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/imgTrack2"
+                            android:layout_width="90dp"
+                            android:layout_height="90dp"
+                            android:background="#CCCCCC"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/tvTrack2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            android:textColor="#0B2E33"
+                            android:textSize="13sp"
+                            android:layout_marginTop="6dp" />
+                    </LinearLayout>
+
+                    <!-- Track 3 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/imgTrack3"
+                            android:layout_width="90dp"
+                            android:layout_height="90dp"
+                            android:background="#CCCCCC"
+                            android:scaleType="centerCrop" />
+
+                        <TextView
+                            android:id="@+id/tvTrack3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            android:textColor="#0B2E33"
+                            android:textSize="13sp"
+                            android:layout_marginTop="6dp" />
+                    </LinearLayout>
 
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:layout_marginStart="8dp"> <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="#93B1B5"
-                    android:layout_margin="6dp" />
-
-                    <TextView
-                        android:id="@+id/song3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Song 3"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textColor="#0B2E33"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
             </LinearLayout>
-
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="35dp"
-                android:backgroundTint="#0B2E33"
-                android:text="Log Out"
-                android:textColor="#FFFFFF" />
 
         </LinearLayout>
     </RelativeLayout>

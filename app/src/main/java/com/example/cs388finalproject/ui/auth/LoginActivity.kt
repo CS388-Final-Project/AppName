@@ -55,7 +55,6 @@ class LoginActivity : AppCompatActivity() {
                     toast("error: ${e.message}")
                 }
         }
-
     }
 
     private fun doLogin() {

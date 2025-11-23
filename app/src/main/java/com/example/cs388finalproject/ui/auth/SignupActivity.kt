@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cs388finalproject.MainActivity
 import com.example.cs388finalproject.databinding.ActivitySignupBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,6 +54,12 @@ class SignupActivity : AppCompatActivity() {
 
         binding.tvToLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+
+        binding.btnGuest.setOnClickListener {
+            // Do NOT authenticate → go straight to MainActivity
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }

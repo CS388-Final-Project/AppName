@@ -13,13 +13,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.cs388finalproject.databinding.FragmentProfileBinding
-import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 class ProfileFragment : Fragment() {
+
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
@@ -27,29 +27,20 @@ class ProfileFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    // --- Activity Result Launchers ---
-
-    // 1. Launcher for picking an image from the gallery
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri = result.data?.data
-            if (imageUri != null) {
-                uploadImageToFirebase(imageUri)
-            }
+            if (imageUri != null) uploadImageToFirebase(imageUri)
         }
     }
 
-    // 2. Launcher for requesting runtime permissions (READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            selectImageFromGallery()
-        } else {
-            Toast.makeText(requireContext(), "Permission is required to set profile picture.", Toast.LENGTH_SHORT).show()
-        }
+    ) { granted ->
+        if (granted) selectImageFromGallery()
+        else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateView(
@@ -59,151 +50,134 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        // Initial data and picture load
         loadUserData()
         loadProfilePicture()
 
-        // --- Listeners ---
-
-        binding.btnLogout.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-        }
+        binding.layoutTopTracks.visibility = View.GONE
 
         binding.btnSettings.setOnClickListener {
-            val intent = Intent(requireActivity(), SettingsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireActivity(), SettingsActivity::class.java))
         }
 
-        binding.btnChangePhoto.setOnClickListener {
-            checkAndRequestPermission()
+        binding.btnChangePhoto.setOnClickListener { checkAndRequestPermission() }
+
+        binding.btnConnectSpotifyProfile.setOnClickListener {
+            (activity as? MainActivity)?.startSpotifyLogin()
+        }
+
+        (activity as? MainActivity)?.getSpotifyState()?.let { state ->
+            updateSpotifyUi(state.profile, state.tracks, animate = false)
         }
 
         return binding.root
     }
 
-    // --- Lifecycle and Data Loading ---
-
     override fun onResume() {
         super.onResume()
-        // Ensure data and photo are refreshed when returning from SettingsActivity
         loadUserData()
         loadProfilePicture()
+
+        (activity as? MainActivity)?.getSpotifyState()?.let { state ->
+            updateSpotifyUi(state.profile, state.tracks, animate = false)
+        }
     }
 
     private fun loadUserData() {
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
-
-        // Email (Fast, from Auth object)
+        val user = auth.currentUser ?: return
         binding.tvEmail.text = user.email ?: "Email Not Available"
 
-        // Username (Using Firestore to fetch the canonical username)
-        db.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { document ->
-                val username = document.getString("username")
-                binding.tvUsername.text = username ?: "N/A"
-            }
-            .addOnFailureListener {
-                binding.tvUsername.text = "Error Loading Username"
+        db.collection("users").document(user.uid).get()
+            .addOnSuccessListener {
+                binding.tvUsername.text = it.getString("username") ?: "N/A"
             }
     }
 
-    // --- Permission and Image Selection ---
-
     private fun checkAndRequestPermission() {
         val permission =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // Android 13+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 android.Manifest.permission.READ_MEDIA_IMAGES
-            } else {
-                // Android 12 and below
+            else
                 android.Manifest.permission.READ_EXTERNAL_STORAGE
-            }
 
         when {
-            // Permission is already granted
-            requireContext().checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED -> {
+            requireContext().checkSelfPermission(permission) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED ->
                 selectImageFromGallery()
-            }
-            // Request the permission
-            else -> {
-                requestPermissionLauncher.launch(permission)
-            }
+
+            else -> requestPermissionLauncher.launch(permission)
         }
     }
 
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        // Grant temporary read access to the image URI
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         imagePickerLauncher.launch(intent)
     }
 
-    // --- Profile Picture Logic ---
+    private fun uploadImageToFirebase(uri: Uri) {
+        val id = auth.currentUser?.uid ?: return
+        val ref = storage.reference.child("profile_pictures/$id")
 
-    private fun uploadImageToFirebase(imageUri: Uri) {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Toast.makeText(requireContext(), "Authentication required.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Storage location: /profile_pictures/{userId}.jpg
-        val storageRef = storage.reference.child("profile_pictures/$userId")
-
-        // Start the upload task
-        storageRef.putFile(imageUri)
-            .addOnSuccessListener { taskSnapshot ->
-                // Get the download URL
-                taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
-                    saveProfilePictureUrl(uri.toString())
+        ref.putFile(uri)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener { download ->
+                    saveProfilePictureUrl(download.toString())
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
     private fun saveProfilePictureUrl(url: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Save the URL to Firestore
-        db.collection("users").document(userId)
+        val id = auth.currentUser?.uid ?: return
+        db.collection("users").document(id)
             .update("profilePictureUrl", url)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Photo updated!", Toast.LENGTH_SHORT).show()
-                loadProfilePicture() // Reload the new image
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to save photo URL.", Toast.LENGTH_SHORT).show()
-            }
+            .addOnSuccessListener { loadProfilePicture() }
     }
 
     private fun loadProfilePicture() {
-        val userId = auth.currentUser?.uid ?: return
+        val id = auth.currentUser?.uid ?: return
 
-        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-            val url = document.getString("profilePictureUrl")
+        db.collection("users").document(id).get()
+            .addOnSuccessListener { doc ->
+                val url = doc.getString("profilePictureUrl")
 
-            // Use Glide to handle image loading and circular cropping
-            val glideBuilder = Glide.with(this).load(url)
-
-            if (!url.isNullOrEmpty()) {
-                glideBuilder
-                    .circleCrop()
-                    .into(binding.imgProfilePhoto)
-            } else {
-                // Load a default placeholder image if no URL is found
-                binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
+                if (!url.isNullOrEmpty()) {
+                    Glide.with(this).load(url).circleCrop().into(binding.imgProfilePhoto)
+                } else {
+                    binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
+                }
             }
+    }
+
+    fun updateSpotifyUi(
+        profile: SpotifyProfile,
+        tracks: List<SpotifyTrack>,
+        animate: Boolean = true
+    ) {
+        binding.tvSpotifyName.text = "Spotify: ${profile.displayName}"
+
+        if (!profile.imageUrl.isNullOrEmpty()) {
+            Glide.with(this).load(profile.imageUrl).circleCrop().into(binding.imgSpotifyAvatar)
         }
+
+        val t = tracks.take(3)
+
+        fun apply(i: Int, img: android.widget.ImageView, tv: android.widget.TextView) {
+            if (i >= t.size) {
+                tv.text = ""
+                img.setImageDrawable(null)
+                return
+            }
+            tv.text = "${t[i].name}\n— ${t[i].artist}"
+            Glide.with(this).load(t[i].imageUrl).centerCrop().into(img)
+        }
+
+        apply(0, binding.imgTrack1, binding.tvTrack1)
+        apply(1, binding.imgTrack2, binding.tvTrack2)
+        apply(2, binding.imgTrack3, binding.tvTrack3)
+
+        binding.btnConnectSpotifyProfile.visibility = View.GONE
+        binding.layoutTopTracks.visibility = View.VISIBLE
     }
 
     override fun onDestroyView() {

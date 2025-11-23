@@ -1,25 +1,27 @@
 package com.example.cs388finalproject.ui.home
-import com.example.cs388finalproject.R
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cs388finalproject.R
+import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsActivity : AppCompatActivity() {
 
-
     private lateinit var etUsername: EditText
     private lateinit var tvEmail: TextView
     private lateinit var btnSaveChanges: Button
     private lateinit var btnBackArrow: ImageView
+    private lateinit var btnLogout: Button
 
     private val auth = FirebaseAuth.getInstance()
-    private val db  = FirebaseFirestore.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,23 +31,25 @@ class SettingsActivity : AppCompatActivity() {
         tvEmail = findViewById(R.id.tvEmail)
         btnSaveChanges = findViewById(R.id.btnSaveChanges)
         btnBackArrow = findViewById(R.id.btn_back_arrow)
+        btnLogout = findViewById(R.id.btnLogout)
 
         loadUsername()
 
-        btnSaveChanges.setOnClickListener {
-            saveUsername()
-        }
+        btnSaveChanges.setOnClickListener { saveUsername() }
 
-        btnBackArrow.setOnClickListener {
-            finish()
+        btnBackArrow.setOnClickListener { finish() }
+
+        btnLogout.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
     }
 
     private fun loadUsername() {
-
-        val user = auth.currentUser
-        if (user == null) {
-            // If somehow not logged in, close the activity
+        val user = auth.currentUser ?: run {
             finish()
             return
         }
@@ -59,29 +63,21 @@ class SettingsActivity : AppCompatActivity() {
                 etUsername.setText(username ?: "")
             }
             .addOnFailureListener {
-                etUsername.setText("Error loading username!!!!")
+                etUsername.setText("Error loading username")
             }
     }
 
     private fun saveUsername() {
         val newUsername = etUsername.text.toString().trim()
-        val user = auth.currentUser
+        val user = auth.currentUser ?: return
 
-        if(newUsername.isBlank()) {
+        if (newUsername.isBlank()) {
             etUsername.error = "Username cannot be empty"
             return
         }
 
-        if (user == null) return
-
         db.collection("users").document(user.uid)
             .update("username", newUsername)
-            .addOnSuccessListener {
-                finish()
-            }
-            .addOnFailureListener {
-
-            }
+            .addOnSuccessListener { finish() }
     }
-
 }

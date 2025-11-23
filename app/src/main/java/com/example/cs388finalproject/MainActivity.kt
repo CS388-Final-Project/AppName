@@ -7,6 +7,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.cs388finalproject.databinding.ActivityMainBinding
 import com.example.cs388finalproject.ui.auth.LoginActivity
+import com.example.cs388finalproject.ui.auth.SignupActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -20,9 +21,12 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            startActivity(Intent(this, LoginActivity::class.java))
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val firstLaunch = prefs.getBoolean("first_launch", true)
+
+        if(firstLaunch) {
+            startActivity(Intent(this, SignupActivity::class.java))
+            prefs.edit().putBoolean("first_launch", false).apply()
             finish()
             return
         }

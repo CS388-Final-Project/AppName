@@ -81,5 +81,14 @@
             android:gravity="center"
             android:text="Already have an account? Log in"
             android:textColor="#0B2E33" />
+
+        <Button
+            android:id="@+id/btnGuest"
+            android:layout_width="205dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#0A7F94"
+            android:text="Browse as Guest"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </ScrollView>

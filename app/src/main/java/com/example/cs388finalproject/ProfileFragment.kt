@@ -27,9 +27,6 @@ class ProfileFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    // --- Activity Result Launchers ---
-
-    // 1. Launcher for picking an image from the gallery
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -41,10 +38,9 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // 2. Launcher for requesting runtime permissions (READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
+    ) { isGranted ->
         if (isGranted) {
             selectImageFromGallery()
         } else {
@@ -59,62 +55,70 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        // Initial data and picture load
-        loadUserData()
-        loadProfilePicture()
+        val user = auth.currentUser
+        val isGuest = user == null
 
-        // --- Listeners ---
+        binding.btnLogout.text = if (isGuest) "Sign In" else "Log Out"
 
         binding.btnLogout.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            if (isGuest) {
+                startActivity(Intent(requireContext(), LoginActivity::class.java))
+            }
+            else {
+                auth.signOut()
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
         }
 
         binding.btnSettings.setOnClickListener {
-            val intent = Intent(requireActivity(), SettingsActivity::class.java)
-            startActivity(intent)
+            if(isGuest) {
+                Toast.makeText(requireContext(), "Sign in to edit profile", Toast.LENGTH_SHORT).show()
+            }
+            else{
+                startActivity(Intent(requireActivity(), SettingsActivity::class.java))
+            }
+        }
+        binding.btnChangePhoto.setOnClickListener {
+            if(isGuest) {
+                Toast.makeText(requireContext(), "Sign in to change photo", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                checkAndRequestPermission()
+            }
         }
 
-        binding.btnChangePhoto.setOnClickListener {
-            checkAndRequestPermission()
+        if (!isGuest) {
+            loadUserData()
+            loadProfilePicture()
         }
 
         return binding.root
     }
 
-    // --- Lifecycle and Data Loading ---
-
     override fun onResume() {
         super.onResume()
-        // Ensure data and photo are refreshed when returning from SettingsActivity
-        loadUserData()
-        loadProfilePicture()
+        if(auth.currentUser != null) {
+            loadUserData()
+            loadProfilePicture()
+        }
     }
 
     private fun loadUserData() {
-        val user = auth.currentUser
-        if (user == null) {
-            return
-        }
+        val user = auth.currentUser ?: return
 
-        // Email (Fast, from Auth object)
         binding.tvEmail.text = user.email ?: "Email Not Available"
 
-        // Username (Using Firestore to fetch the canonical username)
         db.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { document ->
-                val username = document.getString("username")
-                binding.tvUsername.text = username ?: "N/A"
+                binding.tvUsername.text = document.getString("username") ?: "N/A"
             }
             .addOnFailureListener {
                 binding.tvUsername.text = "Error Loading Username"
             }
     }
-
-    // --- Permission and Image Selection ---
 
     private fun checkAndRequestPermission() {
         val permission =
@@ -132,29 +136,19 @@ class ProfileFragment : Fragment() {
                 selectImageFromGallery()
             }
             // Request the permission
-            else -> {
-                requestPermissionLauncher.launch(permission)
-            }
+            else -> requestPermissionLauncher.launch(permission)
         }
     }
 
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        // Grant temporary read access to the image URI
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         imagePickerLauncher.launch(intent)
     }
 
-    // --- Profile Picture Logic ---
-
     private fun uploadImageToFirebase(imageUri: Uri) {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Toast.makeText(requireContext(), "Authentication required.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+        val userId = auth.currentUser?.uid ?: return
         // Storage location: /profile_pictures/{userId}.jpg
         val storageRef = storage.reference.child("profile_pictures/$userId")
 

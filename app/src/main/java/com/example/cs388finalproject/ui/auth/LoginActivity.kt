@@ -29,6 +29,33 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
             finish()
         }
+
+        binding.btnLoginGuest.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+
+        binding.tvToForgotPass.setOnClickListener {
+            //add forgot pass stuff here
+            val email = binding.etUsername.text.toString().trim()
+
+            if (email.isEmpty()) {
+                toast("Enter Your Email To Reset Your Password")
+                return@setOnClickListener
+            }
+            setLoading(true)
+
+            auth.sendPasswordResetEmail(email)
+                .addOnSuccessListener {
+                    setLoading(false)
+                    toast("Password reset email sent")
+                }
+                .addOnFailureListener { e ->
+                    setLoading(false)
+                    toast("error: ${e.message}")
+                }
+        }
+
     }
 
     private fun doLogin() {

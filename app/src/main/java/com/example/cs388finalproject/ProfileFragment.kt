@@ -21,7 +21,6 @@ import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.example.cs388finalproject.ui.SongDetailActivity
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FieldValue
 

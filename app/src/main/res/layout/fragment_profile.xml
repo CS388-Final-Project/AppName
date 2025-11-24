@@ -123,6 +123,16 @@
                 android:textColor="@android:color/white" />
 
             <Button
+                android:id="@+id/btnViewFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#4F7C82"
+                android:text="View Friends"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+
+            <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"
@@ -130,16 +140,9 @@
                 android:backgroundTint="#0B2E33"
                 android:text="Log Out"
                 android:textColor="#FFFFFF" />
-                android:id="@+id/btnViewFriends"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="View Friends"
-                android:textAllCaps="false"
-                android:layout_marginTop="12dp"
-                android:backgroundTint="#4F7C82"
-                android:textColor="@android:color/white" />
 
             <!-- SPOTIFY SECTION (shown when connected) -->
+
             <LinearLayout
                 android:id="@+id/layoutTopTracks"
                 android:layout_width="match_parent"

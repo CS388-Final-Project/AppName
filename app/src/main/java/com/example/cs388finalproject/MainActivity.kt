@@ -20,6 +20,14 @@ import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import android.Manifest
 
 data class SpotifyProfile(
     val id: String,
@@ -85,6 +93,13 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
+
+        ensureNotificationPermission()
+
+        createPostPromptChannel()
+
+        // Schedule the next post prompt
+        PostPromptWorker.scheduleNextPrompt(this)
 
         val navHost =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -319,6 +334,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    //for push notifications
+    private fun createPostPromptChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "post_prompt_channel"
+            val name = "Post prompts"
+            val descriptionText = "Random reminders to post what you're listening to"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(channelId, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private val requestNotifPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        Log.d("Notifications", "POST_NOTIFICATIONS granted = $granted")
+        // No further action needed here; Worker already handles missing permission
+    }
+
+    // Check & request POST_NOTIFICATIONS on Android 13+
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                requestNotifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
         coroutineScope.cancel()

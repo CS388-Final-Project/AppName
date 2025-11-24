@@ -11,45 +11,6 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-        <!-- Top Spacing -->
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
-
-        <!-- Header With Back Button -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_media_previous"
-                android:tint="#0B2E33"
-                android:contentDescription="Back" />
-
-            <TextView
-                android:id="@+id/textHeader"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Create a Post"
-                android:textSize="26sp"
-                android:textColor="#0B2E33"
-                android:textStyle="bold"
-                android:gravity="center" />
-        </LinearLayout>
-
-        <!-- Spacing -->
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
-
-        <!-- Card Container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,24 +23,56 @@
             android:gravity="center_horizontal"
             android:layout_marginBottom="30dp">
 
-            <TextView
-                android:id="@+id/createHeader"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp"> <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_media_previous"
+                android:tint="#0B2E33"
+                android:contentDescription="Back" />
+
+                <TextView
+                    android:id="@+id/textHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Create a Post"
+                    android:textSize="26sp"
+                    android:textColor="#0B2E33"
+                    android:textStyle="bold"
+                    android:gravity="center" /> <View
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/imgPostPhoto"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/sharp_add_photo_alternate_24"
+                android:background="#D0D0D0"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Post Image Preview" />
+
+            <Button
+                android:id="@+id/btnSelectPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Upload a Post"
-                android:textColor="#0B2E33"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Your existing input fields would go here -->
-
-            <!-- Upload Button -->
+                android:text="Select/Take Photo"
+                android:backgroundTint="#2C6C75"
+                android:layout_marginBottom="24dp" />
             <Button
                 android:id="@+id/btnUpload"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="#0B2E33"
+                android:backgroundTint="#0B2E33"
                 android:text="Upload Post"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"

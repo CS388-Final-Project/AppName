@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
                 // TOP 3 TRACKS
                 val tracksRes = client.newCall(
                     Request.Builder()
-                        .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
+                        .url("https://api.spotify.com/v1/me/top/tracks?limit=3&time_range=medium_term")
                         .addHeader("Authorization", "Bearer $token")
                         .build()
                 ).execute()

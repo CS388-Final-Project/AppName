@@ -117,6 +117,16 @@
                 android:backgroundTint="#1DB954"
                 android:textColor="@android:color/white" />
 
+            <Button
+                android:id="@+id/btnViewFriends"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View Friends"
+                android:textAllCaps="false"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#4F7C82"
+                android:textColor="@android:color/white" />
+
             <!-- SPOTIFY SECTION (shown when connected) -->
             <LinearLayout
                 android:id="@+id/layoutTopTracks"
@@ -243,6 +253,7 @@
                     </LinearLayout>
 
                 </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

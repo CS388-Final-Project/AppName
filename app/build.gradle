@@ -9,6 +9,21 @@ android {
     namespace 'com.example.cs388finalproject'
     compileSdk 36
 
+    signingConfigs {
+        release {
+            storeFile file("shared-spotify.keystore")
+            storePassword "MusicMedia123"
+            keyAlias "spotifykey"
+            keyPassword "MusicMedia123"
+        }
+        debug {
+            storeFile file("shared-spotify.keystore")
+            storePassword "MusicMedia123"
+            keyAlias "spotifykey"
+            keyPassword "MusicMedia123"
+        }
+    }
+
     defaultConfig {
         applicationId "com.example.cs388finalproject"
         minSdk 24
@@ -26,8 +41,12 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 

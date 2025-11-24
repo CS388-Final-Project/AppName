@@ -21,6 +21,10 @@ import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.example.cs388finalproject.ui.SongDetailActivity
+import androidx.appcompat.app.AlertDialog
+import com.google.firebase.firestore.FieldValue
+
 
 class ProfileFragment : Fragment() {
 
@@ -30,6 +34,10 @@ class ProfileFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
+
+    private var baseUsername: String = ""
+
+    private var friendIds: List<String> = emptyList()
 
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -90,29 +98,11 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Logout / Exit Guest
-        binding.btnLogout.setOnClickListener {
-            if (isGuest()) {
-                // Exit guest mode
-                FirebaseAuth.getInstance().signOut()
-                GuestSession.setGuest(requireContext(), false)
-
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
-                requireActivity().finish()
-            } else {
-                // Normal user logout (shouldn't be visible now, but safe)
-                FirebaseAuth.getInstance().signOut()
-                GuestSession.setGuest(requireContext(), false)
-
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
-                requireActivity().finish()
-            }
+        binding.btnViewFriends.setOnClickListener {
+            showFriendsDialog()
         }
 
-        // Apply guest UI (labels, disables)
-        applyGuestRestrictions()
-
-        // Load spotify cached state if available
+        // ---- FIX: Use topTracks instead of tracks ----
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
@@ -172,8 +162,101 @@ class ProfileFragment : Fragment() {
         binding.tvEmail.text = user.email ?: "Email Not Available"
 
         db.collection("users").document(user.uid).get()
+            .addOnSuccessListener { doc ->
+                // keep showing just the username in the text field
+                binding.tvUsername.text = doc.getString("username") ?: "N/A"
+
+                friendIds = (doc.get("friends") as? List<String>) ?: emptyList()
+
+                updateFriendsButton()
+            }
+    }
+
+    private fun updateFriendsButton() {
+        val count = friendIds.size
+        binding.btnViewFriends.text = if (count > 0) {
+            "View Friends ($count)"
+        } else {
+            "View Friends"
+        }
+    }
+
+    private fun showFriendsDialog() {
+        if (!isAdded) return
+
+        if (friendIds.isEmpty()) {
+            Toast.makeText(
+                requireContext(),
+                "You haven't added any friends yet.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        // Firestore whereIn supports up to 10 ids; keep it simple for now
+        val idsForQuery = if (friendIds.size > 10) friendIds.take(10) else friendIds
+
+        db.collection("users")
+            .whereIn("uid", idsForQuery)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val names = snapshot.documents.map { doc ->
+                    doc.getString("username")
+                        ?: doc.getString("email")
+                        ?: "Unknown user"
+                }
+
+                val nameArray = names.toTypedArray()
+
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Your Friends")
+                    .setItems(nameArray) { _, which ->
+                        val uidToRemove = idsForQuery[which]
+                        val name = nameArray[which]
+
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Remove friend?")
+                            .setMessage("Remove $name from your friends?")
+                            .setPositiveButton("Remove") { _, _ ->
+                                removeFriend(uidToRemove)
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                    .setNegativeButton("Close", null)
+                    .show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to load friends.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun removeFriend(friendUid: String) {
+        val currentUid = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(currentUid)
+            .update("friends", FieldValue.arrayRemove(friendUid))
             .addOnSuccessListener {
-                binding.tvUsername.text = it.getString("username") ?: "N/A"
+                // Update local cache + button label
+                friendIds = friendIds.filterNot { it == friendUid }
+                updateFriendsButton()
+
+                Toast.makeText(
+                    requireContext(),
+                    "Friend removed.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to remove friend.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener {
                 binding.tvUsername.text = "N/A"

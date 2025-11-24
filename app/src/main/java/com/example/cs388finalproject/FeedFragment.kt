@@ -15,6 +15,9 @@ import com.example.cs388finalproject.ui.CreatePostActivity
 import com.example.cs388finalproject.ui.SongDetailActivity
 import com.example.cs388finalproject.ui.home.FeedAdapter
 import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class FeedFragment : Fragment() {
 
@@ -23,6 +26,8 @@ class FeedFragment : Fragment() {
 
     private val repo = PostRepository()
     private lateinit var adapter: FeedAdapter
+
+    private var feedListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +46,9 @@ class FeedFragment : Fragment() {
         binding.recyclerFeed.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerFeed.adapter = adapter
 
+        setupFeed()
+
+        // Live updates
         repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             val posts = snapshot.toObjects<Post>()
@@ -97,6 +105,69 @@ class FeedFragment : Fragment() {
             putExtra("explicit", post.explicit)
         }
         startActivity(intent)
+    }
+
+    private fun setupFeed() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            // Guest → global feed
+            listenToGlobalFeed()
+        } else {
+            // Logged in → only friends
+            listenToFriendsFeed(currentUser.uid)
+        }
+    }
+
+    /** Global feed → all posts, newest first  */
+    private fun listenToGlobalFeed() {
+        feedListener?.remove()
+        feedListener = repo.feed().addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) return@addSnapshotListener
+            val posts = snapshot.toObjects<Post>()
+            adapter.submitList(posts)
+        }
+    }
+
+    /**
+     * Friends-only feed: this is so logged in users see the feed comprised of their
+     * friends posts and guest users should see a global feed
+     */
+    private fun listenToFriendsFeed(currentUid: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(currentUid)
+            .addSnapshotListener { doc, error ->
+                if (error != null || doc == null || !doc.exists()) {
+                    // If anything goes wrong, fall back to global feed
+                    listenToGlobalFeed()
+                    return@addSnapshotListener
+                }
+
+                val friends = (doc.get("friends") as? List<String>) ?: emptyList()
+                val friendUids = (friends + currentUid).distinct()
+
+                feedListener?.remove()
+
+                if (friendUids.isEmpty()) {
+                    adapter.submitList(emptyList())
+                    return@addSnapshotListener
+                }
+
+                // Firestore whereIn supports up to 10 values; for more you'd split the query.
+                val limitedIds = if (friendUids.size > 10) friendUids.take(10) else friendUids
+
+                feedListener = db.collection("posts")
+                    .whereIn("uid", limitedIds)
+                    .addSnapshotListener { snapshot, postsError ->
+                        if (postsError != null || snapshot == null) {
+                            return@addSnapshotListener
+                        }
+                        val posts = snapshot.toObjects<Post>()
+                            .sortedByDescending { it.createdAt }
+
+                        adapter.submitList(posts)
+                    }
+            }
     }
 
     override fun onDestroyView() {

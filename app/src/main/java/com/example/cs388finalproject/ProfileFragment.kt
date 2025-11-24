@@ -13,6 +13,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.cs388finalproject.databinding.FragmentProfileBinding
+import com.example.cs388finalproject.ui.auth.GuestSession
+import com.example.cs388finalproject.ui.auth.LoginActivity
+import com.example.cs388finalproject.ui.auth.SignupActivity
+import com.example.cs388finalproject.ui.SongDetailActivity
 import com.example.cs388finalproject.ui.home.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -58,20 +62,40 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
+        // default
+        binding.layoutTopTracks.visibility = View.GONE
+
+        // load UI & data
         loadUserData()
         loadProfilePicture()
 
-        // Hide Spotify UI until connected
-        binding.layoutTopTracks.visibility = View.GONE
-
+        // Settings button: if guest -> show message to sign up, else open SettingsActivity
         binding.btnSettings.setOnClickListener {
-            startActivity(Intent(requireActivity(), SettingsActivity::class.java))
+            if (isGuest()) {
+                Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(requireContext(), SignupActivity::class.java))
+            } else {
+                startActivity(Intent(requireActivity(), SettingsActivity::class.java))
+            }
         }
 
-        binding.btnChangePhoto.setOnClickListener { checkAndRequestPermission() }
+        // Change photo: blocked for guests
+        binding.btnChangePhoto.setOnClickListener {
+            if (isGuest()) {
+                Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(requireContext(), SignupActivity::class.java))
+            } else {
+                checkAndRequestPermission()
+            }
+        }
 
+        // Connect Spotify: if guest -> navigate to signup; else login flow
         binding.btnConnectSpotifyProfile.setOnClickListener {
-            (activity as? MainActivity)?.startSpotifyLogin()
+            if (isGuest()) {
+                startActivity(Intent(requireContext(), SignupActivity::class.java))
+            } else {
+                (activity as? MainActivity)?.startSpotifyLogin()
+            }
         }
 
         binding.btnViewFriends.setOnClickListener {
@@ -80,7 +104,7 @@ class ProfileFragment : Fragment() {
 
         // ---- FIX: Use topTracks instead of tracks ----
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            updateSpotifyUi(state.profile, state.topTracks, animate = false)
+            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
 
         return binding.root
@@ -90,14 +114,51 @@ class ProfileFragment : Fragment() {
         super.onResume()
         loadUserData()
         loadProfilePicture()
+        applyGuestRestrictions()
 
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            updateSpotifyUi(state.profile, state.topTracks, animate = false)
+            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
     }
 
+    private fun isGuest(): Boolean {
+        // guest session storage OR anonymous firebase account
+        return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
+    }
+
+    private fun applyGuestRestrictions() {
+        if (!isGuest()) {
+            binding.btnLogout.visibility = View.GONE
+            binding.btnConnectSpotifyProfile.isEnabled = true
+            binding.btnConnectSpotifyProfile.alpha = 1f
+            binding.btnChangePhoto.isEnabled = true
+            binding.btnChangePhoto.alpha = 1f
+            return
+        }
+
+        // Guest UI
+        binding.tvUsername.text = "Guest User"
+        binding.tvEmail.text = "Browsing as Guest"
+
+        binding.btnLogout.visibility = View.VISIBLE
+        binding.btnLogout.text = "Exit Guest / Log In"
+
+        binding.btnChangePhoto.isEnabled = false
+        binding.btnChangePhoto.alpha = 0.4f
+
+        binding.btnSettings.isEnabled = true // still clickable to show message
+        binding.btnConnectSpotifyProfile.text = "Sign Up to connect to Spotify"
+        binding.btnConnectSpotifyProfile.alpha = 1f // clickable to go to signup
+    }
+
     private fun loadUserData() {
-        val user = auth.currentUser ?: return
+        val user = auth.currentUser
+        if (user == null || isGuest()) {
+            binding.tvEmail.text = "Browsing as Guest"
+            binding.tvUsername.text = "Guest User"
+            return
+        }
+
         binding.tvEmail.text = user.email ?: "Email Not Available"
 
         db.collection("users").document(user.uid).get()
@@ -197,9 +258,17 @@ class ProfileFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            .addOnFailureListener {
+                binding.tvUsername.text = "N/A"
+            }
     }
 
     private fun checkAndRequestPermission() {
+        if (isGuest()) {
+            Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val permission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 android.Manifest.permission.READ_MEDIA_IMAGES
@@ -210,7 +279,6 @@ class ProfileFragment : Fragment() {
             requireContext().checkSelfPermission(permission) ==
                     android.content.pm.PackageManager.PERMISSION_GRANTED ->
                 selectImageFromGallery()
-
             else -> requestPermissionLauncher.launch(permission)
         }
     }
@@ -223,6 +291,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(uri: Uri) {
+        if (isGuest()) {
+            Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val id = auth.currentUser?.uid ?: return
         val ref = storage.reference.child("profile_pictures/$id")
 
@@ -232,13 +305,22 @@ class ProfileFragment : Fragment() {
                     saveProfilePictureUrl(download.toString())
                 }
             }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun saveProfilePictureUrl(url: String) {
         val id = auth.currentUser?.uid ?: return
+
         db.collection("users").document(id)
             .update("profilePictureUrl", url)
             .addOnSuccessListener { loadProfilePicture() }
+            .addOnFailureListener {
+                // If update fails (maybe no document), set instead
+                db.collection("users").document(id).set(mapOf("profilePictureUrl" to url), com.google.firebase.firestore.SetOptions.merge())
+                    .addOnSuccessListener { loadProfilePicture() }
+            }
     }
 
     private fun loadProfilePicture() {
@@ -247,21 +329,24 @@ class ProfileFragment : Fragment() {
         db.collection("users").document(id).get()
             .addOnSuccessListener { doc ->
                 val url = doc.getString("profilePictureUrl")
-
                 if (!url.isNullOrEmpty()) {
                     Glide.with(this).load(url).circleCrop().into(binding.imgProfilePhoto)
                 } else {
                     binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
                 }
             }
+            .addOnFailureListener {
+                binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
+            }
     }
 
-    // ---- FIXED VERSION: Uses topTracks ----
     fun updateSpotifyUi(
         profile: SpotifyProfile,
         tracks: List<SpotifyTrack>,
         animate: Boolean = true
     ) {
+        if (isGuest()) return
+
         binding.tvSpotifyName.text = "Spotify: ${profile.displayName}"
 
         if (!profile.imageUrl.isNullOrEmpty()) {
@@ -273,11 +358,7 @@ class ProfileFragment : Fragment() {
 
         val t = tracks.take(3)
 
-        fun apply(
-            i: Int,
-            img: android.widget.ImageView,
-            tv: android.widget.TextView
-        ) {
+        fun apply(i: Int, img: android.widget.ImageView, tv: android.widget.TextView) {
             if (i >= t.size) {
                 tv.text = ""
                 img.setImageDrawable(null)
@@ -294,9 +375,6 @@ class ProfileFragment : Fragment() {
         binding.btnConnectSpotifyProfile.visibility = View.GONE
         binding.layoutTopTracks.visibility = View.VISIBLE
 
-        // ─────────────────────────────────────────────
-        // MAKE TOP 3 TRACKS CLICKABLE
-        // ─────────────────────────────────────────────
         fun launchSongDetails(track: SpotifyTrack) {
             val intent = Intent(requireContext(), SongDetailActivity::class.java)
             intent.putExtra("songName", track.name)
@@ -309,15 +387,10 @@ class ProfileFragment : Fragment() {
             startActivity(intent)
         }
 
-        // Track 1
         binding.imgTrack1.setOnClickListener { if (t.isNotEmpty()) launchSongDetails(t[0]) }
         binding.tvTrack1.setOnClickListener { if (t.isNotEmpty()) launchSongDetails(t[0]) }
-
-        // Track 2
         binding.imgTrack2.setOnClickListener { if (t.size > 1) launchSongDetails(t[1]) }
         binding.tvTrack2.setOnClickListener { if (t.size > 1) launchSongDetails(t[1]) }
-
-        // Track 3
         binding.imgTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
         binding.tvTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
     }

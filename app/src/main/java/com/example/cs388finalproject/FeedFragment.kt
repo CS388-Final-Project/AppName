@@ -56,6 +56,13 @@ class FeedFragment : Fragment() {
         }
 
         binding.buttonCreatePost.setOnClickListener {
+            val main = requireActivity() as MainActivity
+            if (main.isGuestUser()) {
+                Toast.makeText(requireContext(), "Sign Up to create a post", Toast.LENGTH_SHORT).show()
+                // optionally navigate to signup:
+                startActivity(Intent(requireContext(), com.example.cs388finalproject.ui.auth.SignupActivity::class.java))
+                return@setOnClickListener
+            }
             startCreatePostFlow()
         }
     }

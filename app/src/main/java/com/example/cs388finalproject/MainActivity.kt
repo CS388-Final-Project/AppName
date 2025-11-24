@@ -8,7 +8,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.cs388finalproject.databinding.ActivityMainBinding
 import com.example.cs388finalproject.ProfileFragment
+import com.example.cs388finalproject.ui.auth.GuestSession
 import com.example.cs388finalproject.ui.auth.LoginActivity
+import com.example.cs388finalproject.ui.auth.SignupActivity
 import com.example.cs388finalproject.utils.LocationHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.spotify.sdk.android.auth.AuthorizationClient
@@ -18,8 +20,6 @@ import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-
-// ---------- DATA MODELS ----------
 
 data class SpotifyProfile(
     val id: String,
@@ -44,8 +44,6 @@ data class SpotifyState(
     val currentTrack: SpotifyTrack?
 )
 
-// ---------- MAIN ACTIVITY ----------
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -65,12 +63,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // FIRST-LAUNCH: show SignupActivity the very first time the app runs
+        if (GuestSession.isFirstLaunch(this)) {
+            // Let user sign up or browse as guest. Mark first launch done.
+            GuestSession.setFirstLaunchDone(this)
+            startActivity(Intent(this, SignupActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
 
-        if (auth.currentUser == null) {
+        val isGuest = GuestSession.isGuest(this)
+
+        // If user is NOT guest but also not logged in → must log in
+        if (!isGuest && auth.currentUser == null) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
@@ -83,9 +93,27 @@ class MainActivity : AppCompatActivity() {
         locationHelper = LocationHelper(this)
     }
 
-    // ---------- SPOTIFY LOGIN ----------
+    // ---------- GUEST CHECK ----------
+    fun isGuestUser(): Boolean {
+        return GuestSession.isGuest(this)
+    }
 
+    /** Utility that fragments can call. If returns true -> guest is blocked and onGuestBlocked executed. */
+    fun ensureNotGuest(onGuestBlocked: () -> Unit = {}) : Boolean {
+        return if (isGuestUser()) {
+            onGuestBlocked()
+            true
+        } else false
+    }
+
+    // ---------- SPOTIFY LOGIN ----------
     fun startSpotifyLogin() {
+        if (isGuestUser()) {
+            // navigate to SignupActivity to encourage sign up
+            startActivity(Intent(this, SignupActivity::class.java))
+            return
+        }
+
         val builder = AuthorizationRequest.Builder(
             CLIENT_ID,
             AuthorizationResponse.Type.TOKEN,
@@ -111,19 +139,18 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, intent)
 
         if (requestCode == REQUEST_CODE) {
-            val response = AuthorizationClient.getResponse(resultCode, intent)
+            if (isGuestUser()) {
+                Log.e("Spotify", "Guest triggered auth result - ignoring")
+                return
+            }
 
+            val response = AuthorizationClient.getResponse(resultCode, intent)
             when (response.type) {
                 AuthorizationResponse.Type.TOKEN -> {
                     spotifyAccessToken = response.accessToken
                     Log.d("Spotify", "Access Token: $spotifyAccessToken")
-
                     locationHelper.requestLocation()
-
-                    // One-time profile + top tracks
                     fetchSpotifyProfileAndTopTracks()
-
-                    // Current track + auto-refresh
                     fetchCurrentlyPlaying()
                     startAutoRefresh()
                 }
@@ -137,8 +164,7 @@ class MainActivity : AppCompatActivity() {
     private fun isJson(text: String): Boolean =
         text.trim().startsWith("{") || text.trim().startsWith("[")
 
-    // ---------- PROFILE + TOP TRACKS ----------
-
+    // (rest of fetch/profile/currentlyPlaying/startAutoRefresh same as your original)
     private fun fetchSpotifyProfileAndTopTracks() {
         val token = spotifyAccessToken ?: return
 
@@ -146,7 +172,6 @@ class MainActivity : AppCompatActivity() {
             try {
                 val client = OkHttpClient()
 
-                // PROFILE
                 val profileRes = client.newCall(
                     Request.Builder()
                         .url("https://api.spotify.com/v1/me")
@@ -167,7 +192,6 @@ class MainActivity : AppCompatActivity() {
                         ?.optString("url")
                 )
 
-                // TOP 3 TRACKS
                 val tracksRes = client.newCall(
                     Request.Builder()
                         .url("https://api.spotify.com/v1/me/top/tracks?limit=3&time_range=medium_term")
@@ -214,7 +238,6 @@ class MainActivity : AppCompatActivity() {
                         currentTrack = existingCurrent
                     )
 
-                    // Update profile fragment UI if visible
                     val navHost =
                         supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
                     val current =
@@ -229,8 +252,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    // ---------- CURRENTLY PLAYING ----------
 
     private fun fetchCurrentlyPlaying() {
         val token = spotifyAccessToken ?: return
@@ -269,8 +290,6 @@ class MainActivity : AppCompatActivity() {
                     previewUrl = item.optString("preview_url")
                 )
 
-                Log.d("Spotify", "NOW PLAYING → ${track.name} — ${track.artist}")
-
                 withContext(Dispatchers.Main) {
                     val existing = spotifyState
                     spotifyState = if (existing == null) {
@@ -290,14 +309,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ---------- AUTO REFRESH ----------
-
     private fun startAutoRefresh() {
         refreshJob?.cancel()
         refreshJob = coroutineScope.launch {
             while (isActive) {
                 fetchCurrentlyPlaying()
-                delay(5000) // every 5 seconds
+                delay(5000)
             }
         }
     }

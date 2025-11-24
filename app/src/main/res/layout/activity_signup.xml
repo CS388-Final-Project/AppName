@@ -28,8 +28,9 @@
         <EditText
             android:id="@+id/etEmail"
             android:hint="Email"
+            android:textColorHint="@color/black"
             android:background="@drawable/input_field_background"
-            android:textColor="#0B2E33"
+            android:textColor="@color/black"
             android:inputType="textEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +40,8 @@
             android:id="@+id/etUsername"
             android:hint="Username"
             android:background="@drawable/input_field_background"
-            android:textColor="#0B2E33"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
             android:inputType="textPersonName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,7 +51,8 @@
             android:id="@+id/etPassword"
             android:hint="Password"
             android:background="@drawable/input_field_background"
-            android:textColor="#0B2E33"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,7 +62,8 @@
             android:id="@+id/etConfirmPassword"
             android:hint="Confirm Password"
             android:background="@drawable/input_field_background"
-            android:textColor="#0B2E33"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
             android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,5 +85,15 @@
             android:gravity="center"
             android:text="Already have an account? Log in"
             android:textColor="#0B2E33" />
+
+        <Button
+            android:id="@+id/guestButton"
+            android:layout_width="191dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#4F7C82"
+            android:text="Continue As A Guest"
+            android:textColor="#FFFFFF" />
+
     </LinearLayout>
 </ScrollView>

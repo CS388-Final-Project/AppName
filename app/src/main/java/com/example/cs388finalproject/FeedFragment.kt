@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
+
 class FeedFragment : Fragment() {
 
     private var _binding: FragmentFeedBinding? = null
@@ -28,6 +29,10 @@ class FeedFragment : Fragment() {
     private lateinit var adapter: FeedAdapter
 
     private var feedListener: ListenerRegistration? = null
+
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+    private var lastPromptAt: Long? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,11 +53,36 @@ class FeedFragment : Fragment() {
 
         setupFeed()
 
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.uid)
+                .addSnapshotListener { doc, error ->
+                    if (error != null || doc == null || !doc.exists()) return@addSnapshotListener
+                    lastPromptAt = doc.getLong("lastPromptAt")
+                }
+        }
+
         // Live updates
-        repo.feed().addSnapshotListener { snapshot, error ->
+        /*repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             val posts = snapshot.toObjects<Post>()
             adapter.submitList(posts)
+        }*/
+
+        repo.feed().addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) return@addSnapshotListener
+
+            val allPosts = snapshot.toObjects<Post>()
+
+            // If the user has never received a prompt yet, show everything
+            val cutoff = lastPromptAt ?: 0L
+
+            // Only show posts from THIS user's current window
+            val filtered = allPosts.filter { post ->
+                post.createdAt >= cutoff
+            }
+
+            adapter.submitList(filtered)
         }
 
         binding.buttonCreatePost.setOnClickListener {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#B8E3E9"
@@ -15,7 +16,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp"
             android:gravity="end">
 
             <ImageButton
@@ -24,7 +26,8 @@
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/outline_settings_24"
-                android:tint="#0B2E33" />
+                app:tint="@color/black" />
+
         </LinearLayout>
 
         <!-- MAIN COLUMN -->
@@ -34,7 +37,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:padding="24dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:paddingBottom="16dp"
             android:layout_below="@id/topBar">
 
             <!-- PROFILE IMAGE -->
@@ -42,10 +47,10 @@
                 android:id="@+id/imgProfilePhoto"
                 android:layout_width="170dp"
                 android:layout_height="170dp"
-                android:src="@drawable/outline_account_circle_24"
+                android:layout_marginTop="0dp"
                 android:contentDescription="Profile photo"
-                android:layout_marginTop="10dp"
-                android:padding="16dp" />
+                android:padding="0dp"
+                android:src="@drawable/outline_account_circle_24" />
 
             <!-- CHANGE PHOTO -->
             <Button
@@ -116,6 +121,15 @@
                 android:layout_marginTop="24dp"
                 android:backgroundTint="#1DB954"
                 android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#0B2E33"
+                android:text="Log Out"
+                android:textColor="#FFFFFF" />
 
             <!-- SPOTIFY SECTION (shown when connected) -->
             <LinearLayout

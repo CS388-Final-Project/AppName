@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cs388finalproject.MainActivity
 import com.example.cs388finalproject.databinding.ActivityLoginBinding
+import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -30,6 +31,9 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
             finish()
         }
+
+        // Browse as Guest
+        binding.guestButton.setOnClickListener { loginAsGuest() }
     }
 
     private fun doLogin() {
@@ -42,6 +46,10 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setLoading(true)
+
+        // user is not guest
+        GuestSession.setGuest(this, false)
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 setLoading(false)
@@ -54,9 +62,49 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    private fun loginAsGuest() {
+        setLoading(true)
+
+        // Sign in anonymously with Firebase and mark guest session
+        auth.signInAnonymously()
+            .addOnSuccessListener {
+                val uid = auth.currentUser?.uid
+                if (uid == null) {
+                    setLoading(false)
+                    toast("Guest login failed")
+                    return@addOnSuccessListener
+                }
+
+                val guestUser = hashMapOf(
+                    "uid" to uid,
+                    "email" to "",
+                    "username" to "Guest",
+                    "isGuest" to true
+                )
+
+                db.collection("users").document(uid).set(guestUser)
+                    .addOnSuccessListener {
+                        GuestSession.setGuest(this, true)
+                        GuestSession.setFirstLaunchDone(this) // treat that user passed first-launch
+                        setLoading(false)
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        setLoading(false)
+                        toast("Failed to create guest profile: ${e.message}")
+                    }
+            }
+            .addOnFailureListener {
+                setLoading(false)
+                toast("Guest login failed")
+            }
+    }
+
     private fun setLoading(loading: Boolean) {
         binding.progress.visibility = if (loading) View.VISIBLE else View.GONE
         binding.btnLogin.isEnabled = !loading
+        binding.guestButton.isEnabled = !loading
     }
 
     private fun toast(msg: String) =

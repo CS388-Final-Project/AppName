@@ -41,7 +41,6 @@ class FeedFragment : Fragment() {
         binding.recyclerFeed.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerFeed.adapter = adapter
 
-        // Live updates
         repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
             val posts = snapshot.toObjects<Post>()
@@ -49,6 +48,13 @@ class FeedFragment : Fragment() {
         }
 
         binding.buttonCreatePost.setOnClickListener {
+            val main = requireActivity() as MainActivity
+            if (main.isGuestUser()) {
+                Toast.makeText(requireContext(), "Sign Up to create a post", Toast.LENGTH_SHORT).show()
+                // optionally navigate to signup:
+                startActivity(Intent(requireContext(), com.example.cs388finalproject.ui.auth.SignupActivity::class.java))
+                return@setOnClickListener
+            }
             startCreatePostFlow()
         }
     }

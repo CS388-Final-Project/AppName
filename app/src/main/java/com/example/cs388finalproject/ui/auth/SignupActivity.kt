@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cs388finalproject.MainActivity
 import com.example.cs388finalproject.databinding.ActivitySignupBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,10 +23,15 @@ class SignupActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         binding.btnSignup.setOnClickListener {
-            val email = binding.etEmail.text.toString()
-            val username = binding.etUsername.text.toString()
+            val email = binding.etEmail.text.toString().trim()
+            val username = binding.etUsername.text.toString().trim()
             val pass = binding.etPassword.text.toString()
             val confirm = binding.etConfirmPassword.text.toString()
+
+            if (email.isEmpty() || username.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             if (pass != confirm) {
                 Toast.makeText(this, "Passwords don't match", Toast.LENGTH_SHORT).show()
@@ -36,24 +42,65 @@ class SignupActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Signing up -> disable guest session
+            GuestSession.setGuest(this, false)
+            GuestSession.setFirstLaunchDone(this)
+
             auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
                 if (it.isSuccessful) {
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
                     val user = hashMapOf(
                         "uid" to uid,
                         "email" to email,
-                        "username" to username
+                        "username" to username,
+                        "isGuest" to false
                     )
                     db.collection("users").document(uid).set(user)
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                } else Toast.makeText(this, it.exception?.message, Toast.LENGTH_SHORT).show()
+                        .addOnSuccessListener {
+                            // go to main / or login - we'll go to MainActivity so user is logged in
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Failed to save user: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(this, it.exception?.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
         binding.tvToLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+        }
+
+        // Browse as Guest from signup screen too
+        binding.guestButton.setOnClickListener {
+            // reuse LoginActivity logic to sign in anonymously
+            auth.signInAnonymously()
+                .addOnSuccessListener {
+                    val uid = auth.currentUser?.uid ?: return@addOnSuccessListener
+                    val guestUser = hashMapOf(
+                        "uid" to uid,
+                        "email" to "",
+                        "username" to "Guest",
+                        "isGuest" to true
+                    )
+                    db.collection("users").document(uid).set(guestUser)
+                        .addOnSuccessListener {
+                            GuestSession.setGuest(this, true)
+                            GuestSession.setFirstLaunchDone(this)
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Failed to create guest profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Guest sign-in failed", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 

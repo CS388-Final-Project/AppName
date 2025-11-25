@@ -129,7 +129,8 @@ https://github.com/user-attachments/assets/646251b9-2fd3-4617-ab13-c500a814408b
 
 ## GitHub Project board
 
-[Add screenshot of your Project Board with the updated status of issues for Milestone 3. Note that these should include the updated issues you worked on for this sprint and not be a duplicate of Milestone 2 Project board.] <img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
+[Add screenshot of your Project Board with the updated status of issues for Milestone 3. Note that these should include the updated issues you worked on for this sprint and not be a duplicate of Milestone 2 Project board.] <img src= <img width="1402" height="881" alt="image" src="https://github.com/user-attachments/assets/37e79a65-1498-4bf9-b728-5f054eff3f59" />
+ width=600>
 
 ## Completed user stories
 

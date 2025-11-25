@@ -54,6 +54,11 @@ class ProfileFragment : Fragment() {
         else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
     }
 
+    private fun isGuest(): Boolean {
+        // guest session storage OR anonymous firebase account
+        return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -106,7 +111,38 @@ class ProfileFragment : Fragment() {
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
 
+        binding.btnLogout.setOnClickListener {
+            handleLogoutOrGuestExit()
+        }
+
         return binding.root
+    }
+
+
+
+    private fun handleLogoutOrGuestExit() {
+        if (isGuest()) {
+            // 1. Clear Guest Shared Preference flag
+            GuestSession.clearAll(requireContext())
+
+            // 2. Log out of the anonymous Firebase account
+            auth.signOut()
+
+            // 3. Navigate to LoginActivity
+            startActivity(Intent(requireActivity(), LoginActivity::class.java))
+            requireActivity().finish() // Close MainActivity stack
+
+        } else {
+            // Regular User Logout
+
+            // 1. Sign out of Firebase
+            auth.signOut()
+
+            // 2. Navigate to LoginActivity
+            startActivity(Intent(requireActivity(), LoginActivity::class.java))
+            requireActivity().finish() // Close MainActivity stack
+        }
+        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -118,11 +154,6 @@ class ProfileFragment : Fragment() {
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
-    }
-
-    private fun isGuest(): Boolean {
-        // guest session storage OR anonymous firebase account
-        return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
     }
 
     private fun applyGuestRestrictions() {

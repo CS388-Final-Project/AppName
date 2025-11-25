@@ -1,5 +1,6 @@
 package com.example.cs388finalproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cs388finalproject.databinding.FragmentFriendsBinding
 import com.example.cs388finalproject.model.Post
 import com.example.cs388finalproject.model.UserProfile
+import com.example.cs388finalproject.ui.auth.SignupActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -39,6 +41,12 @@ class FriendsFragment : Fragment() {
     private var searchMode: SearchMode = SearchMode.USERS
     private var currentQuery: String = ""
     private var currentUid: String? = null
+    private var isGuestSession: Boolean = false
+
+    private fun isGuest(): Boolean {
+        // A simplified check using the current Firebase user status
+        return auth.currentUser?.isAnonymous == true
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,26 +61,48 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val user = auth.currentUser
-        if (user == null) {
-            // Guest → can't add friends
+        val isLoggedIn = user != null && !user.isAnonymous
+        isGuestSession = user?.isAnonymous == true
+
+        if (!isLoggedIn) {
+            // GUEST MODE: Setup UI for browsing only and set click action to navigate to Signup
+
+            adapter = FriendsAdapter(
+                onAddFriend = { _ ->
+                    (activity as? MainActivity)?.let { mainActivity ->
+                        val intent = Intent(mainActivity, SignupActivity::class.java)
+                        startActivity(intent)
+                    }
+                    Toast.makeText(requireContext(), "Please sign up or log in to add friends.", Toast.LENGTH_LONG).show()
+                },
+                isActionAvailable = false
+            )
+
             binding.tvFriendsHint.text = "Log in to search and add friends."
             binding.etSearch.visibility = View.GONE
             binding.rgSearchMode.visibility = View.GONE
-            binding.recyclerFriends.visibility = View.GONE
-            return
-        }
 
-        currentUid = user.uid
+            currentUid = null
+        } else {
+            // AUTHENTICATED USER MODE: Setup for adding friends
 
-        adapter = FriendsAdapter { profile ->
-            addFriend(user.uid, profile.uid)
+            currentUid = user!!.uid
+
+            adapter = FriendsAdapter(
+                onAddFriend = { profile ->
+                    addFriend(user.uid, profile.uid)
+                },
+                isActionAvailable = true
+            )
+
+            setupSearchUi()
+            binding.tvFriendsHint.text = "Search for users to add as friends."
         }
 
         binding.recyclerFriends.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerFriends.adapter = adapter
 
-        setupSearchUi()
-        loadInitialData(user.uid)
+        loadInitialData(currentUid)
     }
 
     private fun setupSearchUi() {
@@ -92,16 +122,27 @@ class FriendsFragment : Fragment() {
             currentQuery = text?.toString().orEmpty()
             applySearch()
         }
-
-        binding.tvFriendsHint.text = "Search for users to add as friends."
     }
 
-    private fun loadInitialData(currentUid: String) {
+    private fun loadInitialData(currentUid: String?) {
         // Load ALL users
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshot ->
+                // 💡 FIX 1 & 2: Filter out Guest users and the currently logged-in user by UID
                 val users = snapshot.documents.mapNotNull { it.toObject(UserProfile::class.java) }
+                    .filter { user ->
+                        // Exclude any profile marked as guest
+                        val isExplicitGuest = user.isGuest == true
+
+                        val hasMinimalData = user.email.isNotBlank() || user.username.isNotBlank()
+                        val guestCredentials = user.email == "Guest User" || user.email == "Browsing as Guest"
+                        // Exclude the current user's actual UID, regardless of username/email
+                        val notSelf = user.uid != currentUid
+                        val shouldInclude = !isExplicitGuest && hasMinimalData && notSelf && guestCredentials
+                        shouldInclude
+                    }
+
                 allUsers.clear()
                 allUsers.addAll(users)
                 applySearch()
@@ -110,15 +151,19 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load users.", Toast.LENGTH_SHORT).show()
             }
 
-        // Load current user's existing friends
-        db.collection("users").document(currentUid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val friends = (doc.get("friends") as? List<String>) ?: emptyList()
-                friendIds.clear()
-                friendIds.addAll(friends)
-                applySearch()
-            }
+        // Load current user's existing friends (Only if logged in)
+        if (currentUid != null && !isGuestSession) {
+            db.collection("users").document(currentUid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val friends = (doc.get("friends") as? List<String>) ?: emptyList()
+                    friendIds.clear()
+                    friendIds.addAll(friends)
+                    applySearch()
+                }
+        } else {
+            friendIds.clear()
+        }
 
         // Load some posts for music search
         db.collection("posts")
@@ -135,16 +180,24 @@ class FriendsFragment : Fragment() {
 
     /** Filter results based on mode + query and EXCLUDE already-friends. */
     private fun applySearch() {
-        val uid = currentUid ?: return
+        val uid = currentUid
         val query = currentQuery.trim()
         val lower = query.lowercase()
 
+        // Note: Filtering out guests and self (by UID) is now primarily handled in loadInitialData,
+        // which makes the search filtering logic below much cleaner.
+
         val results: List<UserProfile> = when (searchMode) {
             SearchMode.USERS -> {
-                // Only non-friends + not yourself
+                // If not logged in, we shouldn't show results anyway due to UI restrictions,
+                // but if we did, allUsers is already filtered to exclude guests and self.
                 val candidates = allUsers.filter { u ->
-                    u.uid != uid && u.uid !in friendIds
+                    // For logged-in users, filter out current friends.
+                    if (uid != null && !isGuestSession) {
+                        u.uid !in friendIds
+                    } else true // Guests/Not-fully-logged-in users show all non-guest users
                 }
+
                 if (query.isBlank()) {
                     candidates
                 } else {
@@ -167,7 +220,10 @@ class FriendsFragment : Fragment() {
                         .distinct()
 
                     allUsers.filter { u ->
-                        u.uid != uid && u.uid !in friendIds && u.uid in matchingUids
+                        // Apply friend filter for logged-in users
+                        val isFriend = uid != null && !isGuestSession && u.uid in friendIds
+
+                        !isFriend && u.uid in matchingUids
                     }
                 }
             }
@@ -213,13 +269,16 @@ class FriendsFragment : Fragment() {
     }
 }
 
+// --------------------------------------------------------------------------------------------------
+
 /**
  * Simple adapter using android.R.layout.simple_list_item_2
  * - text1: username or email
- * - text2: "Tap to add friend"
+ * - text2: "Tap to add friend" or "Tap to sign up"
  */
 private class FriendsAdapter(
-    private val onAddFriend: (UserProfile) -> Unit
+    private val onAddFriend: (UserProfile) -> Unit,
+    private val isActionAvailable: Boolean // NEW FLAG: True if user can add, False if user must sign up
 ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
 
     private val items = mutableListOf<UserProfile>()
@@ -237,7 +296,9 @@ private class FriendsAdapter(
 
         fun bind(user: UserProfile) {
             text1.text = if (user.username.isNotBlank()) user.username else user.email
-            text2.text = "Tap to add friend"
+
+            // Set the appropriate call to action text
+            text2.text = if (isActionAvailable) "Tap to add friend" else "Tap to sign up or log in"
 
             itemView.setOnClickListener {
                 onAddFriend(user)

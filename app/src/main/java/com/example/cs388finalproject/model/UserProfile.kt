@@ -4,5 +4,6 @@ data class UserProfile(
     val uid: String = "",
     val email: String = "",
     val username: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val isGuest: Boolean = false
 )

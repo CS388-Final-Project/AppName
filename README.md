@@ -138,10 +138,15 @@ https://github.com/user-attachments/assets/646251b9-2fd3-4617-ab13-c500a814408b
 from the original requirements
 
 [Add video/gif of your current application that shows build progress]
-<img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
-
+<div>
+    <a href="https://www.loom.com/share/6485beb20f084922bbe83c235d5a288f">
+      <p>Introducing Music Media: A Social Platform Connecting People Through Music - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/6485beb20f084922bbe83c235d5a288f">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/6485beb20f084922bbe83c235d5a288f-6ac4e9234eaa77ff-full-play.gif#t=0.1">
+    </a>
+  </div>
 ## App Demo Video
-
-- Embed the YouTube/Vimeo link of your Completed Demo Day prep video
+https://youtu.be/yMk2amPZAe0
 
 

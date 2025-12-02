@@ -95,35 +95,13 @@ class LoginActivity : AppCompatActivity() {
     private fun loginAsGuest() {
         setLoading(true)
 
-        // Sign in anonymously with Firebase and mark guest session
         auth.signInAnonymously()
             .addOnSuccessListener {
-                val uid = auth.currentUser?.uid
-                if (uid == null) {
-                    setLoading(false)
-                    toast("Guest login failed")
-                    return@addOnSuccessListener
-                }
-
-                val guestUser = hashMapOf(
-                    "uid" to uid,
-                    "email" to "",
-                    "username" to "Guest",
-                    "isGuest" to true
-                )
-
-                db.collection("users").document(uid).set(guestUser)
-                    .addOnSuccessListener {
-                        GuestSession.setGuest(this, true)
-                        GuestSession.setFirstLaunchDone(this) // treat that user passed first-launch
-                        setLoading(false)
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        setLoading(false)
-                        toast("Failed to create guest profile: ${e.message}")
-                    }
+                GuestSession.setGuest(this, true)
+                GuestSession.setFirstLaunchDone(this)
+                setLoading(false)
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
             .addOnFailureListener {
                 setLoading(false)

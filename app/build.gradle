@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -90,8 +91,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
 
     implementation 'com.google.android.gms:play-services-location:21.2.0'
-// Notifications
+    // Notifications
     implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+    implementation("io.coil-kt:coil:2.4.0")
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

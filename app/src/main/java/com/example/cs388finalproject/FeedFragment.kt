@@ -69,6 +69,7 @@ class FeedFragment : Fragment() {
             adapter.submitList(posts)
         }*/
 
+        /*
         repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
 
@@ -83,7 +84,7 @@ class FeedFragment : Fragment() {
             }
 
             adapter.submitList(filtered)
-        }
+        }*/
 
         binding.buttonCreatePost.setOnClickListener {
             val main = requireActivity() as MainActivity
@@ -138,12 +139,17 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupFeed() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
-            // Guest → global feed
+        val isGuest = com.example.cs388finalproject.ui.auth.GuestSession.isGuest(requireContext())
+
+        if (isGuest) {
+            listenToGlobalFeed()
+            return
+        }
+
+        val currentUser = auth.currentUser
+        if (currentUser == null || currentUser.isAnonymous) {
             listenToGlobalFeed()
         } else {
-            // Logged in → only friends
             listenToFriendsFeed(currentUser.uid)
         }
     }

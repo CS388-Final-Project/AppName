@@ -24,7 +24,6 @@ import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FieldValue
 
-
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
@@ -34,28 +33,23 @@ class ProfileFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    private var baseUsername: String = ""
-
     private var friendIds: List<String> = emptyList()
 
-    private val imagePickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val imageUri = result.data?.data
-            if (imageUri != null) uploadImageToFirebase(imageUri)
+    private val imagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageUri = result.data?.data
+                if (imageUri != null) uploadImageToFirebase(imageUri)
+            }
         }
-    }
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) selectImageFromGallery()
-        else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
-    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) selectImageFromGallery()
+            else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
+        }
 
     private fun isGuest(): Boolean {
-        // guest session storage OR anonymous firebase account
         return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
     }
 
@@ -66,14 +60,11 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        // default
         binding.layoutTopTracks.visibility = View.GONE
 
-        // load UI & data
         loadUserData()
         loadProfilePicture()
 
-        // Settings button: if guest -> show message to sign up, else open SettingsActivity
         binding.btnSettings.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -83,7 +74,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Change photo: blocked for guests
         binding.btnChangePhoto.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -93,7 +83,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Connect Spotify: if guest -> navigate to signup; else login flow
         binding.btnConnectSpotifyProfile.setOnClickListener {
             if (isGuest()) {
                 startActivity(Intent(requireContext(), SignupActivity::class.java))
@@ -102,21 +91,18 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        binding.btnViewFriends.setOnClickListener {
-            showFriendsDialog()
-        }
+        binding.btnViewFriends.setOnClickListener { showFriendsDialog() }
 
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
+            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
 
-        binding.btnLogout.setOnClickListener {
-            handleLogoutOrGuestExit()
-        }
+        binding.btnLogout.setOnClickListener { handleLogout() }
 
         return binding.root
     }
 
+<<<<<<< guest-login/hegel
     private fun handleLogoutOrGuestExit() {
         val user = auth.currentUser
 
@@ -149,6 +135,18 @@ class ProfileFragment : Fragment() {
 
             Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
         }
+=======
+    private fun handleLogout() {
+        if (isGuest()) {
+            GuestSession.clearAll(requireContext())
+        }
+
+        auth.signOut()
+        startActivity(Intent(requireActivity(), LoginActivity::class.java))
+        requireActivity().finish()
+
+        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+>>>>>>> main
     }
 
     override fun onResume() {
@@ -158,7 +156,7 @@ class ProfileFragment : Fragment() {
         applyGuestRestrictions()
 
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
-            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
+            if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
     }
 
@@ -172,7 +170,6 @@ class ProfileFragment : Fragment() {
             return
         }
 
-        // Guest UI
         binding.tvUsername.text = "Guest User"
         binding.tvBio.text = "No Bio Yet"
 
@@ -182,9 +179,15 @@ class ProfileFragment : Fragment() {
         binding.btnChangePhoto.isEnabled = false
         binding.btnChangePhoto.alpha = 0.4f
 
-        binding.btnSettings.isEnabled = true // still clickable to show message
         binding.btnConnectSpotifyProfile.text = "Sign Up to connect to Spotify"
-        binding.btnConnectSpotifyProfile.alpha = 1f // clickable to go to signup
+        binding.btnConnectSpotifyProfile.alpha = 1f
+
+        binding.btnLogout.setOnClickListener {
+            GuestSession.clearAll(requireContext())
+            auth.signOut()
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            requireActivity().finish()
+        }
     }
 
     private fun loadUserData() {
@@ -197,7 +200,6 @@ class ProfileFragment : Fragment() {
 
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
-                // keep showing just the username in the text field
                 binding.tvUsername.text = doc.getString("username") ?: "N/A"
 
                 val bio = doc.getString("bio") ?: "No Bio Yet"
@@ -210,64 +212,43 @@ class ProfileFragment : Fragment() {
 
     private fun updateFriendsButton() {
         val count = friendIds.size
-        binding.btnViewFriends.text = if (count > 0) {
-            "View Friends ($count)"
-        } else {
-            "View Friends"
-        }
+        binding.btnViewFriends.text =
+            if (count > 0) "View Friends ($count)" else "View Friends"
     }
 
     private fun showFriendsDialog() {
         if (!isAdded) return
-
         if (friendIds.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "You haven't added any friends yet.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "You haven't added any friends yet.", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
-        // Firestore whereIn supports up to 10 ids; keep it simple for now
         val idsForQuery = if (friendIds.size > 10) friendIds.take(10) else friendIds
 
-        db.collection("users")
-            .whereIn("uid", idsForQuery)
-            .get()
+        db.collection("users").whereIn("uid", idsForQuery).get()
             .addOnSuccessListener { snapshot ->
                 val names = snapshot.documents.map { doc ->
                     doc.getString("username")
                         ?: doc.getString("email")
                         ?: "Unknown user"
-                }
-
-                val nameArray = names.toTypedArray()
+                }.toTypedArray()
 
                 AlertDialog.Builder(requireContext())
                     .setTitle("Your Friends")
-                    .setItems(nameArray) { _, which ->
+                    .setItems(names) { _, which ->
                         val uidToRemove = idsForQuery[which]
-                        val name = nameArray[which]
+                        val name = names[which]
 
                         AlertDialog.Builder(requireContext())
                             .setTitle("Remove friend?")
                             .setMessage("Remove $name from your friends?")
-                            .setPositiveButton("Remove") { _, _ ->
-                                removeFriend(uidToRemove)
-                            }
+                            .setPositiveButton("Remove") { _, _ -> removeFriend(uidToRemove) }
                             .setNegativeButton("Cancel", null)
                             .show()
                     }
                     .setNegativeButton("Close", null)
                     .show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to load friends.",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
     }
 
@@ -277,44 +258,27 @@ class ProfileFragment : Fragment() {
         db.collection("users").document(currentUid)
             .update("friends", FieldValue.arrayRemove(friendUid))
             .addOnSuccessListener {
-                // Update local cache + button label
                 friendIds = friendIds.filterNot { it == friendUid }
                 updateFriendsButton()
-
-                Toast.makeText(
-                    requireContext(),
-                    "Friend removed.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Friend removed.", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to remove friend.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            .addOnFailureListener {
-                binding.tvUsername.text = "N/A"
+                Toast.makeText(requireContext(), "Failed to remove friend.", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
     private fun checkAndRequestPermission() {
-        if (isGuest()) {
-            Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         val permission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 android.Manifest.permission.READ_MEDIA_IMAGES
-            else
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            else android.Manifest.permission.READ_EXTERNAL_STORAGE
 
         when {
             requireContext().checkSelfPermission(permission) ==
                     android.content.pm.PackageManager.PERMISSION_GRANTED ->
                 selectImageFromGallery()
+
             else -> requestPermissionLauncher.launch(permission)
         }
     }
@@ -327,11 +291,6 @@ class ProfileFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(uri: Uri) {
-        if (isGuest()) {
-            Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         val id = auth.currentUser?.uid ?: return
         val ref = storage.reference.child("profile_pictures/$id")
 
@@ -341,8 +300,8 @@ class ProfileFragment : Fragment() {
                     saveProfilePictureUrl(download.toString())
                 }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -353,8 +312,8 @@ class ProfileFragment : Fragment() {
             .update("profilePictureUrl", url)
             .addOnSuccessListener { loadProfilePicture() }
             .addOnFailureListener {
-                // If update fails (maybe no document), set instead
-                db.collection("users").document(id).set(mapOf("profilePictureUrl" to url), com.google.firebase.firestore.SetOptions.merge())
+                db.collection("users").document(id)
+                    .set(mapOf("profilePictureUrl" to url), com.google.firebase.firestore.SetOptions.merge())
                     .addOnSuccessListener { loadProfilePicture() }
             }
     }
@@ -371,15 +330,11 @@ class ProfileFragment : Fragment() {
                     binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
                 }
             }
-            .addOnFailureListener {
-                binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
-            }
     }
 
     fun updateSpotifyUi(
         profile: SpotifyProfile,
-        tracks: List<SpotifyTrack>,
-        animate: Boolean = true
+        tracks: List<SpotifyTrack>
     ) {
         if (isGuest()) return
 

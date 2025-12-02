@@ -77,26 +77,12 @@ class SignupActivity : AppCompatActivity() {
 
         // Browse as Guest from signup screen too
         binding.guestButton.setOnClickListener {
-            // reuse LoginActivity logic to sign in anonymously
             auth.signInAnonymously()
                 .addOnSuccessListener {
-                    val uid = auth.currentUser?.uid ?: return@addOnSuccessListener
-                    val guestUser = hashMapOf(
-                        "uid" to uid,
-                        "email" to "",
-                        "username" to "Guest",
-                        "isGuest" to true
-                    )
-                    db.collection("users").document(uid).set(guestUser)
-                        .addOnSuccessListener {
-                            GuestSession.setGuest(this, true)
-                            GuestSession.setFirstLaunchDone(this)
-                            startActivity(Intent(this, MainActivity::class.java))
-                            finish()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Failed to create guest profile: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+                    GuestSession.setGuest(this, true)
+                    GuestSession.setFirstLaunchDone(this)
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
                 }
                 .addOnFailureListener {
                     Toast.makeText(this, "Guest sign-in failed", Toast.LENGTH_SHORT).show()

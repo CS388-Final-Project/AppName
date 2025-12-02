@@ -128,20 +128,32 @@ https://github.com/user-attachments/assets/646251b9-2fd3-4617-ab13-c500a814408b
 # Milestone 3 - Build Sprint 2 (Unit 9)
 
 ## GitHub Project board
-
-[Add screenshot of your Project Board with the updated status of issues for Milestone 3. Note that these should include the updated issues you worked on for this sprint and not be a duplicate of Milestone 2 Project board.] <img width="1402" height="881" alt="image" src="https://github.com/user-attachments/assets/37e79a65-1498-4bf9-b728-5f054eff3f59" />
+<img width="1402" height="881" alt="image" src="https://github.com/user-attachments/assets/37e79a65-1498-4bf9-b728-5f054eff3f59" />
 
 ## Completed user stories
+Completed Stories:
+[x] Allow the user to take a picture when prompted by a notification
+[x] Automatically link the current song the user is listening to with the post
+[x] Tag the post with the user’s current location
+[x] Upload the post to the user’s feed and make it visible to friends/followers
+[x] View a feed of friends’ and followed users’ posts
 
-- List the completed user stories from this unit
-- List any pending user stories / any user stories you decided to cut
-from the original requirements
+Pending Stories:
+[] Weekly summary showing most listened-to songs/artists from the user’s feed
+[] Like or comment on posts in the feed
+[] Map view of posts based on location to explore music trends geographically
+[] Push notifications for friends’ activity or trending songs
+[] Profile customization with bio, favorite genres, and playlist highlights
 
-[Add video/gif of your current application that shows build progress]
-<img src="YOUR_WIREFRAME_IMAGE_URL" width=600>
-
-## App Demo Video
-
-- Embed the YouTube/Vimeo link of your Completed Demo Day prep video
-
-
+## Video with current build progress of our application:
+<div>
+    <a href="https://www.loom.com/share/6485beb20f084922bbe83c235d5a288f">
+      <p>Introducing Music Media: A Social Platform Connecting People Through Music - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/6485beb20f084922bbe83c235d5a288f">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/6485beb20f084922bbe83c235d5a288f-6ac4e9234eaa77ff-full-play.gif#t=0.1">
+    </a>
+  </div>
+  
+## App Demo Video:
+https://youtu.be/yMk2amPZAe0

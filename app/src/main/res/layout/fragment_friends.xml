@@ -4,7 +4,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#B8E3E9">
+    android:background="#B8E3E9"
+    android:fitsSystemWindows="true">
+
+    <!-- GUEST MODE UI -->
+    <LinearLayout
+        android:id="@+id/guestContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvGuestMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up to search and add friends."
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="16dp"/>
+
+        <Button
+            android:id="@+id/btnExitGuestFriends"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exit Guest / Log In"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="12dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#0B2E33"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
 
     <!-- Dynamic hint / status text -->
     <TextView

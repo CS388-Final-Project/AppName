@@ -56,16 +56,24 @@ class RecommendationsListFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        loadSongRows()
+        loadDataSafely()
+    }
+
+    private fun loadDataSafely() {
+        if (items.isEmpty()) {
+            binding.recyclerRecommendations.visibility = View.GONE
+            binding.tvListTitle.text = "$title (No Data)"
+            return
+        }
+
+        if (title.contains("Artist")) {
+            loadArtistRows()
+        } else {
+            loadSongRows()
+        }
     }
 
     private fun loadSongRows() {
-
-        if (title == "Top Artists") {
-            // ARTIST LIST MODE
-            loadArtistRows()
-            return
-        }
 
         // SONG LIST MODE
         db.collection("posts")
@@ -92,14 +100,17 @@ class RecommendationsListFragment : Fragment() {
 
                 adapter.submitList(ranked)
             }
+            .addOnFailureListener {
+            }
     }
 
     private fun loadArtistRows() {
+        // items is guaranteed non-empty by loadDataSafely()
         db.collection("posts")
-            .whereIn("artistName", items.toList())
+            .whereIn("artistName", items.toList()) // items.toList() is now guaranteed non-empty
             .get()
             .addOnSuccessListener { snapshot ->
-
+                // ... (rest of loadArtistRows remains the same) ...
                 val posts = snapshot.toObjects(Post::class.java)
 
                 val grouped = posts.groupBy { it.artistName }
@@ -116,6 +127,9 @@ class RecommendationsListFragment : Fragment() {
                     .mapIndexed { index, row -> row.copy(rank = index + 1) }
 
                 adapter.submitList(ranked)
+            }
+            .addOnFailureListener {
+                // Handle Firestore error if necessary
             }
     }
 

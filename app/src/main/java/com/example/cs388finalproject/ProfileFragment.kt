@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 
 class ProfileFragment : Fragment() {
 
@@ -49,7 +50,9 @@ class ProfileFragment : Fragment() {
             else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
         }
 
+    // Helper function to check for guest status
     private fun isGuest(): Boolean {
+        // Checks both shared preferences flag and Firebase anonymous status
         return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
     }
 
@@ -60,11 +63,13 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
+        // default state for Spotify tracks section
         binding.layoutTopTracks.visibility = View.GONE
 
         loadUserData()
         loadProfilePicture()
 
+        // Settings button
         binding.btnSettings.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -74,6 +79,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Change photo button
         binding.btnChangePhoto.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -83,6 +89,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Connect Spotify button
         binding.btnConnectSpotifyProfile.setOnClickListener {
             if (isGuest()) {
                 startActivity(Intent(requireContext(), SignupActivity::class.java))
@@ -93,60 +100,53 @@ class ProfileFragment : Fragment() {
 
         binding.btnViewFriends.setOnClickListener { showFriendsDialog() }
 
+        // Load Spotify data if available
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
 
+        // Logout button
         binding.btnLogout.setOnClickListener { handleLogout() }
 
         return binding.root
     }
 
-<<<<<<< guest-login/hegel
-    private fun handleLogoutOrGuestExit() {
+    // Fixed and unified logout/exit function
+    private fun handleLogout() {
         val user = auth.currentUser
 
         if (isGuest()) {
+            // 1. Handle Anonymous User Deletion
             if (user?.isAnonymous == true) {
                 user.delete()
-                    .addOnCompleteListener {
-                        GuestSession.clearAll(requireContext())
-
-                        auth.signOut()
-
-                        startActivity(Intent(requireActivity(), LoginActivity::class.java))
-                        requireActivity().finish()
-
-                        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            GuestSession.clearAll(requireContext())
+                            auth.signOut()
+                            startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                            requireActivity().finish()
+                            Toast.makeText(requireContext(), "Guest session ended.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // If deletion fails, just sign out of the app
+                            GuestSession.clearAll(requireContext())
+                            auth.signOut()
+                            startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                            requireActivity().finish()
+                            Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+                        }
                     }
+                return // Exit immediately as navigation is handled in the listener
             } else {
+                // Non-anonymous user but using Guest flag (clear flag)
                 GuestSession.clearAll(requireContext())
-                auth.signOut()
-                startActivity(Intent(requireActivity(), LoginActivity::class.java))
-                requireActivity().finish()
-                Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
             }
-
-        } else {
-            auth.signOut()
-
-            startActivity(Intent(requireActivity(), LoginActivity::class.java))
-            requireActivity().finish()
-
-            Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
-        }
-=======
-    private fun handleLogout() {
-        if (isGuest()) {
-            GuestSession.clearAll(requireContext())
         }
 
+        // 2. Regular User Logout
         auth.signOut()
         startActivity(Intent(requireActivity(), LoginActivity::class.java))
         requireActivity().finish()
-
         Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
->>>>>>> main
     }
 
     override fun onResume() {
@@ -170,8 +170,9 @@ class ProfileFragment : Fragment() {
             return
         }
 
+        // Guest UI
         binding.tvUsername.text = "Guest User"
-        binding.tvBio.text = "No Bio Yet"
+        binding.tvBio.text = "No Bio Yet" // Ensure Bio is set for guests
 
         binding.btnLogout.visibility = View.VISIBLE
         binding.btnLogout.text = "Exit Guest / Log In"
@@ -180,14 +181,9 @@ class ProfileFragment : Fragment() {
         binding.btnChangePhoto.alpha = 0.4f
 
         binding.btnConnectSpotifyProfile.text = "Sign Up to connect to Spotify"
-        binding.btnConnectSpotifyProfile.alpha = 1f
+        binding.btnConnectSpotifyProfile.alpha = 1f // Clickable to go to signup
 
-        binding.btnLogout.setOnClickListener {
-            GuestSession.clearAll(requireContext())
-            auth.signOut()
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
-            requireActivity().finish()
-        }
+        // NOTE: The btnLogout listener is handled by the unified handleLogout() in onCreateView
     }
 
     private fun loadUserData() {
@@ -207,6 +203,11 @@ class ProfileFragment : Fragment() {
 
                 friendIds = (doc.get("friends") as? List<String>) ?: emptyList()
                 updateFriendsButton()
+            }
+            .addOnFailureListener {
+                // Handle error if Firestore lookup fails
+                binding.tvUsername.text = "N/A"
+                binding.tvBio.text = "No Bio Yet"
             }
     }
 
@@ -249,6 +250,9 @@ class ProfileFragment : Fragment() {
                     }
                     .setNegativeButton("Close", null)
                     .show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to load friends.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -300,8 +304,8 @@ class ProfileFragment : Fragment() {
                     saveProfilePictureUrl(download.toString())
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -312,8 +316,9 @@ class ProfileFragment : Fragment() {
             .update("profilePictureUrl", url)
             .addOnSuccessListener { loadProfilePicture() }
             .addOnFailureListener {
+                // Fallback to setting the document if update fails (e.g., document missing fields)
                 db.collection("users").document(id)
-                    .set(mapOf("profilePictureUrl" to url), com.google.firebase.firestore.SetOptions.merge())
+                    .set(mapOf("profilePictureUrl" to url), SetOptions.merge())
                     .addOnSuccessListener { loadProfilePicture() }
             }
     }
@@ -329,6 +334,9 @@ class ProfileFragment : Fragment() {
                 } else {
                     binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
                 }
+            }
+            .addOnFailureListener {
+                binding.imgProfilePhoto.setImageResource(R.drawable.outline_account_circle_24)
             }
     }
 

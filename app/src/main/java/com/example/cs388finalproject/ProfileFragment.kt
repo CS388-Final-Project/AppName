@@ -35,20 +35,22 @@ class ProfileFragment : Fragment() {
 
     private var friendIds: List<String> = emptyList()
 
-    private val imagePickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val imageUri = result.data?.data
-            if (imageUri != null) uploadImageToFirebase(imageUri)
+    private val imagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageUri = result.data?.data
+                if (imageUri != null) uploadImageToFirebase(imageUri)
+            }
         }
-    }
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) selectImageFromGallery()
-        else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) selectImageFromGallery()
+            else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
+        }
+
+    private fun isGuest(): Boolean {
+        return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
     }
 
     override fun onCreateView(
@@ -95,7 +97,21 @@ class ProfileFragment : Fragment() {
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
 
+        binding.btnLogout.setOnClickListener { handleLogout() }
+
         return binding.root
+    }
+
+    private fun handleLogout() {
+        if (isGuest()) {
+            GuestSession.clearAll(requireContext())
+        }
+
+        auth.signOut()
+        startActivity(Intent(requireActivity(), LoginActivity::class.java))
+        requireActivity().finish()
+
+        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -107,11 +123,6 @@ class ProfileFragment : Fragment() {
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
-    }
-
-    private fun isGuest(): Boolean {
-        return GuestSession.isGuest(requireContext()) ||
-                auth.currentUser?.isAnonymous == true
     }
 
     private fun applyGuestRestrictions() {
@@ -157,36 +168,29 @@ class ProfileFragment : Fragment() {
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
                 binding.tvUsername.text = doc.getString("username") ?: "N/A"
-
-                friendIds = (doc.get("friends") as? List<*>)
-                    ?.filterIsInstance<String>()
-                    ?: emptyList()
-
+                friendIds =
+                    (doc.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                 updateFriendsButton()
             }
     }
 
     private fun updateFriendsButton() {
         val count = friendIds.size
-        binding.btnViewFriends.text = if (count > 0) {
-            "View Friends ($count)"
-        } else {
-            "View Friends"
-        }
+        binding.btnViewFriends.text =
+            if (count > 0) "View Friends ($count)" else "View Friends"
     }
 
     private fun showFriendsDialog() {
         if (!isAdded) return
         if (friendIds.isEmpty()) {
-            Toast.makeText(requireContext(), "You haven't added any friends yet.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You haven't added any friends yet.", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
         val idsForQuery = if (friendIds.size > 10) friendIds.take(10) else friendIds
 
-        db.collection("users")
-            .whereIn("uid", idsForQuery)
-            .get()
+        db.collection("users").whereIn("uid", idsForQuery).get()
             .addOnSuccessListener { snapshot ->
                 val names = snapshot.documents.map { doc ->
                     doc.getString("username")
@@ -203,9 +207,7 @@ class ProfileFragment : Fragment() {
                         AlertDialog.Builder(requireContext())
                             .setTitle("Remove friend?")
                             .setMessage("Remove $name from your friends?")
-                            .setPositiveButton("Remove") { _, _ ->
-                                removeFriend(uidToRemove)
-                            }
+                            .setPositiveButton("Remove") { _, _ -> removeFriend(uidToRemove) }
                             .setNegativeButton("Cancel", null)
                             .show()
                     }
@@ -225,7 +227,8 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "Friend removed.", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to remove friend.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to remove friend.", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -233,8 +236,7 @@ class ProfileFragment : Fragment() {
         val permission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 android.Manifest.permission.READ_MEDIA_IMAGES
-            else
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            else android.Manifest.permission.READ_EXTERNAL_STORAGE
 
         when {
             requireContext().checkSelfPermission(permission) ==

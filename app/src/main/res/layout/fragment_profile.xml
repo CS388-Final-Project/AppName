@@ -7,16 +7,15 @@
     android:background="#B8E3E9"
     android:fillViewport="true"
     android:clipToPadding="false"
-    android:paddingBottom="120dp"
-    android:paddingTop="40dp">
+    android:paddingTop="40dp"
+    android:paddingBottom="120dp">
 
     <LinearLayout
         android:id="@+id/rootContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:gravity="top">
+        android:paddingHorizontal="20dp">
 
         <!-- SETTINGS -->
         <LinearLayout
@@ -28,8 +27,8 @@
                 android:id="@+id/btnSettings"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@android:color/transparent"
                 android:src="@drawable/outline_settings_24"
+                android:background="@android:color/transparent"
                 app:tint="@color/black"/>
         </LinearLayout>
 
@@ -43,20 +42,20 @@
             android:src="@drawable/outline_account_circle_24"
             android:contentDescription="Profile photo" />
 
-        <!-- CHANGE PHOTO -->
+        <!-- CHANGE PHOTO BUTTON -->
         <Button
             android:id="@+id/btnChangePhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
             android:text="Change Photo"
             android:textColor="#FFFFFF"
             android:backgroundTint="#4F7C82"
-            android:layout_marginTop="12dp"
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"/>
 
-        <!-- USER INFO -->
+        <!-- USER INFO CARD -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -77,10 +76,10 @@
                 android:id="@+id/tvUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:padding="10dp"
                 android:background="#93B1B5"
                 android:textColor="#0B2E33"
+                android:textSize="15sp"
+                android:padding="10dp"
                 android:layout_marginTop="6dp"
                 android:layout_marginBottom="12dp"/>
 
@@ -96,25 +95,25 @@
                 android:id="@+id/tvEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:padding="10dp"
                 android:background="#93B1B5"
                 android:textColor="#0B2E33"
+                android:textSize="15sp"
+                android:padding="10dp"
                 android:layout_marginTop="6dp"/>
         </LinearLayout>
 
-        <!-- CONNECT SPOTIFY -->
+        <!-- CONNECT SPOTIFY BUTTON -->
         <Button
             android:id="@+id/btnConnectSpotifyProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Connect Spotify"
+            android:textColor="@android:color/white"
             android:textAllCaps="false"
             android:backgroundTint="#1DB954"
-            android:textColor="@android:color/white"
             android:layout_marginTop="24dp"/>
 
-        <!-- VIEW FRIENDS -->
+        <!-- VIEW FRIENDS BUTTON -->
         <Button
             android:id="@+id/btnViewFriends"
             android:layout_width="match_parent"
@@ -125,7 +124,7 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="12dp"/>
 
-        <!-- LOG OUT -->
+        <!-- LOG OUT BUTTON -->
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="200dp"
@@ -145,6 +144,7 @@
             android:layout_marginTop="24dp"
             android:visibility="gone">
 
+            <!-- SPOTIFY HEADER -->
             <LinearLayout
                 android:id="@+id/spotifyHeader"
                 android:layout_width="match_parent"
@@ -167,6 +167,7 @@
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
 
+            <!-- TRACKS ROW -->
             <LinearLayout
                 android:id="@+id/topTracksRow"
                 android:layout_width="match_parent"
@@ -175,12 +176,13 @@
                 android:gravity="center"
                 android:layout_marginTop="16dp">
 
+                <!-- TRACK 1 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/imgTrack1"
@@ -200,12 +202,13 @@
                         android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
+                <!-- TRACK 2 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/imgTrack2"
@@ -225,12 +228,13 @@
                         android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
+                <!-- TRACK 3 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="vertical">
 
                     <ImageView
                         android:id="@+id/imgTrack3"

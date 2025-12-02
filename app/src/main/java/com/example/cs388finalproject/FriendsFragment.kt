@@ -41,6 +41,11 @@ class FriendsFragment : Fragment() {
     private var searchMode: SearchMode = SearchMode.USERS
     private var currentQuery: String = ""
     private var currentUid: String? = null
+    private var isGuestSession: Boolean = false
+
+    private fun isGuest(): Boolean {
+        return auth.currentUser?.isAnonymous == true
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,8 +60,8 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val isGuest = com.example.cs388finalproject.ui.auth.GuestSession.isGuest(requireContext())
-
         val user = auth.currentUser
+
         if (isGuest || user == null || user.isAnonymous) {
             binding.guestContainer.visibility = View.VISIBLE
             binding.etSearch.visibility = View.GONE
@@ -73,20 +78,28 @@ class FriendsFragment : Fragment() {
                 requireActivity().finish()
             }
 
+            currentUid = null
             return
         }
 
+        // Logged in user
+        isGuestSession = false
         currentUid = user.uid
 
-        adapter = FriendsAdapter { profile ->
-            addFriend(user.uid, profile.uid)
-        }
+        adapter = FriendsAdapter(
+            onAddFriend = { profile ->
+                addFriend(user.uid, profile.uid)
+            },
+            isActionAvailable = true
+        )
+
+        setupSearchUi()
+        binding.tvFriendsHint.text = "Search for users to add as friends."
 
         binding.recyclerFriends.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerFriends.adapter = adapter
 
-        setupSearchUi()
-        loadInitialData(user.uid)
+        loadInitialData(currentUid)
     }
 
     private fun setupSearchUi() {
@@ -94,11 +107,7 @@ class FriendsFragment : Fragment() {
         binding.rbModeMusic.isChecked = false
 
         binding.rgSearchMode.setOnCheckedChangeListener { _, checkedId ->
-            searchMode = if (checkedId == binding.rbModeMusic.id) {
-                SearchMode.MUSIC
-            } else {
-                SearchMode.USERS
-            }
+            searchMode = if (checkedId == binding.rbModeMusic.id) SearchMode.MUSIC else SearchMode.USERS
             applySearch()
         }
 
@@ -106,22 +115,19 @@ class FriendsFragment : Fragment() {
             currentQuery = text?.toString().orEmpty()
             applySearch()
         }
-
-        binding.tvFriendsHint.text = "Search for users to add as friends."
     }
 
-    private fun loadInitialData(currentUid: String) {
+    private fun loadInitialData(currentUid: String?) {
         // Load ALL users
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshot ->
                 val users = snapshot.documents.mapNotNull { doc ->
-                    // Skip guest users
                     val isGuest = doc.getBoolean("isGuest") ?: false
                     if (isGuest) return@mapNotNull null
-
                     doc.toObject(UserProfile::class.java)
                 }
+
                 allUsers.clear()
                 allUsers.addAll(users)
                 applySearch()
@@ -130,64 +136,59 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load users.", Toast.LENGTH_SHORT).show()
             }
 
-        // Load current user's existing friends
-        db.collection("users").document(currentUid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val friends = (doc.get("friends") as? List<String>) ?: emptyList()
-                friendIds.clear()
-                friendIds.addAll(friends)
-                applySearch()
-            }
+        // Load current user’s friends
+        if (currentUid != null && !isGuestSession) {
+            db.collection("users").document(currentUid).get()
+                .addOnSuccessListener { doc ->
+                    val friends = (doc.get("friends") as? List<String>) ?: emptyList()
+                    friendIds.clear()
+                    friendIds.addAll(friends)
+                    applySearch()
+                }
+        }
 
-        // Load some posts for music search
+        // Load posts (for music mode)
         db.collection("posts")
             .orderBy("createdAt")
             .limit(200)
             .get()
             .addOnSuccessListener { snapshot ->
-                val posts = snapshot.documents.mapNotNull { it.toObject(Post::class.java) }
+                val posts = snapshot.toObjects(Post::class.java)
                 allPosts.clear()
                 allPosts.addAll(posts)
                 applySearch()
             }
     }
 
-    /** Filter results based on mode + query and EXCLUDE already-friends. */
     private fun applySearch() {
-        val uid = currentUid ?: return
-        val query = currentQuery.trim()
-        val lower = query.lowercase()
+        val uid = currentUid
+        val query = currentQuery.trim().lowercase()
 
         val results: List<UserProfile> = when (searchMode) {
             SearchMode.USERS -> {
-                // Only non-friends + not yourself
                 val candidates = allUsers.filter { u ->
-                    u.uid != uid && u.uid !in friendIds
+                    if (uid != null && !isGuestSession) u.uid !in friendIds else true
                 }
-                if (query.isBlank()) {
-                    candidates
-                } else {
-                    candidates.filter { u ->
-                        u.username.contains(lower, ignoreCase = true) ||
-                                u.email.contains(lower, ignoreCase = true)
-                    }
+
+                if (query.isBlank()) candidates
+                else candidates.filter { u ->
+                    u.username.contains(query, true) ||
+                            u.email.contains(query, true)
                 }
             }
 
             SearchMode.MUSIC -> {
-                if (query.isBlank()) {
-                    emptyList()
-                } else {
+                if (query.isBlank()) emptyList()
+                else {
                     val matchingUids = allPosts.filter { p ->
-                        p.songName.contains(lower, ignoreCase = true) ||
-                                p.artistName.contains(lower, ignoreCase = true) ||
-                                p.albumName.contains(lower, ignoreCase = true)
-                    }.map { it.uid }
-                        .distinct()
+                        p.songName.contains(query, true) ||
+                                p.artistName.contains(query, true) ||
+                                p.albumName.contains(query, true)
+                    }.map { it.uid }.distinct()
 
                     allUsers.filter { u ->
-                        u.uid != uid && u.uid !in friendIds && u.uid in matchingUids
+                        val isFriend = uid != null && !isGuestSession && u.uid in friendIds
+                        !isFriend && u.uid in matchingUids
                     }
                 }
             }
@@ -195,30 +196,25 @@ class FriendsFragment : Fragment() {
 
         adapter.submitList(results)
 
-        binding.tvFriendsHint.text = if (results.isEmpty()) {
-            when {
-                query.isBlank() && searchMode == SearchMode.MUSIC ->
-                    "Type a song, artist, or album to find users."
-                query.isBlank() ->
-                    "Search for users to add as friends."
-                else ->
-                    "No results for \"$query\"."
-            }
-        } else {
-            when (searchMode) {
-                SearchMode.USERS -> "User results for \"$query\""
-                SearchMode.MUSIC -> "Users who posted music matching \"$query\""
-            }
+        binding.tvFriendsHint.text = when {
+            results.isEmpty() && query.isBlank() && searchMode == SearchMode.MUSIC ->
+                "Type a song, artist, or album to find users."
+            results.isEmpty() && query.isBlank() ->
+                "Search for users to add as friends."
+            results.isEmpty() ->
+                "No results for \"$query\"."
+            searchMode == SearchMode.USERS ->
+                "User results for \"$query\""
+            else ->
+                "Users who posted music matching \"$query\""
         }
     }
 
-    /** Only ADD friend here. Removal is done from the profile screen. */
     private fun addFriend(currentUid: String, friendUid: String) {
         db.collection("users").document(currentUid)
             .update("friends", FieldValue.arrayUnion(friendUid))
             .addOnSuccessListener {
                 friendIds.add(friendUid)
-                // Re-run search → newly-added friend disappears from results
                 applySearch()
                 Toast.makeText(requireContext(), "Friend added!", Toast.LENGTH_SHORT).show()
             }
@@ -233,13 +229,11 @@ class FriendsFragment : Fragment() {
     }
 }
 
-/**
- * Simple adapter using android.R.layout.simple_list_item_2
- * - text1: username or email
- * - text2: "Tap to add friend"
- */
+// -------------------------------------------------------------------------------------
+
 private class FriendsAdapter(
-    private val onAddFriend: (UserProfile) -> Unit
+    private val onAddFriend: (UserProfile) -> Unit,
+    private val isActionAvailable: Boolean
 ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
 
     private val items = mutableListOf<UserProfile>()
@@ -257,11 +251,9 @@ private class FriendsAdapter(
 
         fun bind(user: UserProfile) {
             text1.text = if (user.username.isNotBlank()) user.username else user.email
-            text2.text = "Tap to add friend"
+            text2.text = if (isActionAvailable) "Tap to add friend" else "Tap to sign up"
 
-            itemView.setOnClickListener {
-                onAddFriend(user)
-            }
+            itemView.setOnClickListener { onAddFriend(user) }
         }
     }
 

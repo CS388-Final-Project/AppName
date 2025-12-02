@@ -102,6 +102,40 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
+<<<<<<< guest-login/hegel
+    private fun handleLogoutOrGuestExit() {
+        val user = auth.currentUser
+
+        if (isGuest()) {
+            if (user?.isAnonymous == true) {
+                user.delete()
+                    .addOnCompleteListener {
+                        GuestSession.clearAll(requireContext())
+
+                        auth.signOut()
+
+                        startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                        requireActivity().finish()
+
+                        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                GuestSession.clearAll(requireContext())
+                auth.signOut()
+                startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                requireActivity().finish()
+                Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+            }
+
+        } else {
+            auth.signOut()
+
+            startActivity(Intent(requireActivity(), LoginActivity::class.java))
+            requireActivity().finish()
+
+            Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+        }
+=======
     private fun handleLogout() {
         if (isGuest()) {
             GuestSession.clearAll(requireContext())
@@ -112,6 +146,7 @@ class ProfileFragment : Fragment() {
         requireActivity().finish()
 
         Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+>>>>>>> main
     }
 
     override fun onResume() {
@@ -136,7 +171,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.tvUsername.text = "Guest User"
-        binding.tvEmail.text = "Browsing as Guest"
+        binding.tvBio.text = "No Bio Yet"
 
         binding.btnLogout.visibility = View.VISIBLE
         binding.btnLogout.text = "Exit Guest / Log In"
@@ -158,18 +193,19 @@ class ProfileFragment : Fragment() {
     private fun loadUserData() {
         val user = auth.currentUser
         if (user == null || isGuest()) {
-            binding.tvEmail.text = "Browsing as Guest"
             binding.tvUsername.text = "Guest User"
+            binding.tvBio.text = "No Bio Yet"
             return
         }
-
-        binding.tvEmail.text = user.email ?: "Email Not Available"
 
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
                 binding.tvUsername.text = doc.getString("username") ?: "N/A"
-                friendIds =
-                    (doc.get("friends") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+                val bio = doc.getString("bio") ?: "No Bio Yet"
+                binding.tvBio.text = bio
+
+                friendIds = (doc.get("friends") as? List<String>) ?: emptyList()
                 updateFriendsButton()
             }
     }

@@ -157,17 +157,84 @@
                     android:layout_height="32dp"
                     android:src="@drawable/outline_account_circle_24"/>
 
+
                 <TextView
                     android:id="@+id/tvSpotifyName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Spotify Connected"
+                    android:text="Bio"
+                    android:textStyle="bold"
                     android:textColor="#0B2E33"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvBio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    android:layout_marginStart="8dp"/>
+                    android:padding="10dp"
+                    android:background="#93B1B5"
+                    android:textColor="#0B2E33"
+                    android:layout_marginTop="6dp" />
+
             </LinearLayout>
 
-            <!-- TRACKS ROW -->
+            <!-- SPOTIFY CONNECT BUTTON (shown when not connected) -->
+            <Button
+                android:id="@+id/btnConnectSpotifyProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Connect Spotify"
+                android:textAllCaps="false"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#1DB954"
+                android:textColor="@android:color/white" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:padding="0dp"
+                >
+
+                <Button
+                    android:id="@+id/btnViewFriends"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#4F7C82"
+                    android:text="View Friends"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnViewPosts"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="#4F7C82"
+                    android:text="View Posts"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#0B2E33"
+                android:text="Log Out"
+                android:textColor="#FFFFFF" />
+
+            <!-- SPOTIFY SECTION (shown when connected) -->
+
             <LinearLayout
                 android:id="@+id/topTracksRow"
                 android:layout_width="match_parent"

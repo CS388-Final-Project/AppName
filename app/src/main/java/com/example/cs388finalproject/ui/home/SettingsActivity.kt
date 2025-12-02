@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cs388finalproject.R
 import com.example.cs388finalproject.ui.auth.LoginActivity
@@ -15,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var etUsername: EditText
+    private lateinit var etBio: EditText
     private lateinit var tvEmail: TextView
     private lateinit var btnSaveChanges: Button
     private lateinit var btnBackArrow: ImageView
@@ -28,56 +30,72 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         etUsername = findViewById(R.id.etUsername)
+        etBio = findViewById(R.id.etBio)
         tvEmail = findViewById(R.id.tvEmail)
         btnSaveChanges = findViewById(R.id.btnSaveChanges)
         btnBackArrow = findViewById(R.id.btn_back_arrow)
         btnLogout = findViewById(R.id.btnLogout)
 
-        loadUsername()
+        loadUserData()
 
-        btnSaveChanges.setOnClickListener { saveUsername() }
+        btnSaveChanges.setOnClickListener { saveUserChanges() }
 
         btnBackArrow.setOnClickListener { finish() }
 
         btnLogout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
-
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
     }
 
-    private fun loadUsername() {
-        val user = auth.currentUser ?: run {
-            finish()
-            return
-        }
+    private fun loadUserData() {
+        val user = auth.currentUser ?: return
 
         tvEmail.text = user.email ?: "Email Not Available"
 
         db.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { document ->
-                val username = document.getString("username")
-                etUsername.setText(username ?: "")
+                etUsername.setText(document.getString("username") ?: "")
+                etBio.setText(document.getString("bio") ?: "")
             }
             .addOnFailureListener {
-                etUsername.setText("Error loading username")
+                Toast.makeText(this, "Failed to load user data.", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun saveUsername() {
+    private fun saveUserChanges() {
         val newUsername = etUsername.text.toString().trim()
+        val newBio = etBio.text.toString().trim()
+
         val user = auth.currentUser ?: return
 
+        // VALIDATION
         if (newUsername.isBlank()) {
             etUsername.error = "Username cannot be empty"
             return
         }
 
+        if (newBio.length > 100) {
+            etBio.error = "Bio must be under 100 characters"
+            return
+        }
+
+        val updates = mapOf(
+            "username" to newUsername,
+            "bio" to newBio
+        )
+
         db.collection("users").document(user.uid)
-            .update("username", newUsername)
-            .addOnSuccessListener { finish() }
+            .update(updates)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+            }
     }
 }

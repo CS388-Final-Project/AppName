@@ -106,7 +106,6 @@ class ProfileFragment : Fragment() {
             showFriendsDialog()
         }
 
-        // ---- FIX: Use topTracks instead of tracks ----
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks, animate = false)
         }
@@ -118,31 +117,38 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
-
-
     private fun handleLogoutOrGuestExit() {
+        val user = auth.currentUser
+
         if (isGuest()) {
-            // 1. Clear Guest Shared Preference flag
-            GuestSession.clearAll(requireContext())
+            if (user?.isAnonymous == true) {
+                user.delete()
+                    .addOnCompleteListener {
+                        GuestSession.clearAll(requireContext())
 
-            // 2. Log out of the anonymous Firebase account
-            auth.signOut()
+                        auth.signOut()
 
-            // 3. Navigate to LoginActivity
-            startActivity(Intent(requireActivity(), LoginActivity::class.java))
-            requireActivity().finish() // Close MainActivity stack
+                        startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                        requireActivity().finish()
+
+                        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                GuestSession.clearAll(requireContext())
+                auth.signOut()
+                startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                requireActivity().finish()
+                Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
+            }
 
         } else {
-            // Regular User Logout
-
-            // 1. Sign out of Firebase
             auth.signOut()
 
-            // 2. Navigate to LoginActivity
             startActivity(Intent(requireActivity(), LoginActivity::class.java))
-            requireActivity().finish() // Close MainActivity stack
+            requireActivity().finish()
+
+            Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -168,7 +174,7 @@ class ProfileFragment : Fragment() {
 
         // Guest UI
         binding.tvUsername.text = "Guest User"
-        binding.tvEmail.text = "Browsing as Guest"
+        binding.tvBio.text = "No Bio Yet"
 
         binding.btnLogout.visibility = View.VISIBLE
         binding.btnLogout.text = "Exit Guest / Log In"
@@ -184,20 +190,20 @@ class ProfileFragment : Fragment() {
     private fun loadUserData() {
         val user = auth.currentUser
         if (user == null || isGuest()) {
-            binding.tvEmail.text = "Browsing as Guest"
             binding.tvUsername.text = "Guest User"
+            binding.tvBio.text = "No Bio Yet"
             return
         }
-
-        binding.tvEmail.text = user.email ?: "Email Not Available"
 
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
                 // keep showing just the username in the text field
                 binding.tvUsername.text = doc.getString("username") ?: "N/A"
 
-                friendIds = (doc.get("friends") as? List<String>) ?: emptyList()
+                val bio = doc.getString("bio") ?: "No Bio Yet"
+                binding.tvBio.text = bio
 
+                friendIds = (doc.get("friends") as? List<String>) ?: emptyList()
                 updateFriendsButton()
             }
     }

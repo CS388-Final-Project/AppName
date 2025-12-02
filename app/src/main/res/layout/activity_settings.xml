@@ -49,6 +49,24 @@
                 android:inputType="textPersonName" />
 
             <TextView
+                android:id="@+id/eBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Change Bio: "
+                android:textStyle="bold"
+                android:textColor="#0B2E33"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etBio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="3"
+                android:maxLength="100"
+                android:inputType="textMultiLine"
+                android:padding="12dp" />
+
+            <TextView
                 android:id="@+id/tvEmailLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

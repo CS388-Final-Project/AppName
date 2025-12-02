@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast // Added for user feedback on empty data
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.cs388finalproject.databinding.FragmentRecommendationsBinding
@@ -84,12 +85,24 @@ class RecommendationsFragment : Fragment() {
                     topArtists.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
                         .joinToString("\n")
 
+                // Get the distinct list for navigation
+                val songItems = posts.map { it.songName }.distinct().take(30)
+                val artistItems = posts.map { it.artistName }.distinct().take(30)
+
                 binding.cardTopSongs.setOnClickListener {
-                    openList("Top Songs on MusicMedia", posts.map { it.songName }.distinct().take(30))
+                    if (songItems.isNotEmpty()) { // 💡 FIX: Check if list is empty before navigating
+                        openList("Top Songs on MusicMedia", songItems)
+                    } else {
+                        Toast.makeText(requireContext(), "No top songs available.", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 binding.cardTopArtists.setOnClickListener {
-                    openList("Top Artists on MusicMedia", posts.map { it.artistName }.distinct().take(30))
+                    if (artistItems.isNotEmpty()) { // 💡 FIX: Check if list is empty before navigating
+                        openList("Top Artists on MusicMedia", artistItems)
+                    } else {
+                        Toast.makeText(requireContext(), "No top artists available.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
     }
@@ -107,6 +120,14 @@ class RecommendationsFragment : Fragment() {
                 val friends = (doc.get("friends") as? List<String>) ?: emptyList()
                 val circle = friends + uid
 
+                // Only query posts if the circle is not empty, though Firestore automatically handles empty 'in' arrays
+                // when the field is indexed. We still filter for an empty post list to prevent crashing the ListFragment.
+                if (circle.isEmpty()) {
+                    binding.tvTopSongsSummary.text = "You need friends to see recommendations!"
+                    binding.tvTopArtistsSummary.text = "You need friends to see recommendations!"
+                    return@addOnSuccessListener
+                }
+
                 db.collection("posts")
                     .whereIn("uid", circle)
                     .get()
@@ -120,25 +141,33 @@ class RecommendationsFragment : Fragment() {
                             .toList().sortedByDescending { it.second }.take(5)
 
                         binding.tvTopSongsSummary.text =
-                            topSongs.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
+                            if (topSongs.isEmpty()) "No activity in your circle."
+                            else topSongs.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
                                 .joinToString("\n")
 
                         binding.tvTopArtistsSummary.text =
-                            topArtists.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
+                            if (topArtists.isEmpty()) "No activity in your circle."
+                            else topArtists.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
                                 .joinToString("\n")
 
+                        // Get the distinct list for navigation
+                        val songItems = posts.map { it.songName }.distinct().take(30)
+                        val artistItems = posts.map { it.artistName }.distinct().take(30)
+
                         binding.cardTopSongs.setOnClickListener {
-                            openList(
-                                "Top Songs from Your Circle",
-                                posts.map { it.songName }.distinct().take(30)
-                            )
+                            if (songItems.isNotEmpty()) { // 💡 FIX: Check if list is empty before navigating
+                                openList("Top Songs from Your Circle", songItems)
+                            } else {
+                                Toast.makeText(requireContext(), "No circle songs available.", Toast.LENGTH_SHORT).show()
+                            }
                         }
 
                         binding.cardTopArtists.setOnClickListener {
-                            openList(
-                                "Top Artists from Your Circle",
-                                posts.map { it.artistName }.distinct().take(30)
-                            )
+                            if (artistItems.isNotEmpty()) { // 💡 FIX: Check if list is empty before navigating
+                                openList("Top Artists from Your Circle", artistItems)
+                            } else {
+                                Toast.makeText(requireContext(), "No circle artists available.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
 
@@ -160,7 +189,10 @@ class RecommendationsFragment : Fragment() {
 
             val geo = Geocoder(requireContext(), Locale.getDefault())
             val addr = geo.getFromLocation(loc.latitude, loc.longitude, 1)
-            val city = addr?.firstOrNull()?.locality ?: return@addOnSuccessListener
+            val city = addr?.firstOrNull()?.locality ?: run {
+                binding.tvTopLocationSummary.text = "Couldn't determine your city."
+                return@addOnSuccessListener
+            }
             val state = addr.firstOrNull()?.adminArea ?: ""
 
             binding.tvTopLocationTitle.text = "Top Songs in $city, $state"
@@ -170,9 +202,10 @@ class RecommendationsFragment : Fragment() {
                     val posts = snap.toObjects(Post::class.java)
 
                     val localPosts = posts.filter { p ->
-                        val plat = p.location["lat"] ?: return@filter false
-                        val plng = p.location["lng"] ?: return@filter false
+                        val plat = p.location["lat"]?.toDouble() ?: return@filter false
+                        val plng = p.location["lng"]?.toDouble() ?: return@filter false
 
+                        // Check if city is the same (Geocoder is needed for reverse lookup)
                         val a = geo.getFromLocation(plat, plng, 1)
                         val postCity = a?.firstOrNull()?.locality
 
@@ -189,8 +222,14 @@ class RecommendationsFragment : Fragment() {
                         else top.mapIndexed { i, p -> "${i + 1}) ${ellipsize(p.first)}" }
                             .joinToString("\n")
 
+                    val listItems = localPosts.map { it.songName }.distinct().take(30)
+
                     binding.cardTopLocation.setOnClickListener {
-                        openList("Top Songs in $city, $state", localPosts.map { it.songName }.take(30))
+                        if (listItems.isNotEmpty()) { // 💡 FIX: Check if list is empty before navigating
+                            openList("Top Songs in $city, $state", listItems)
+                        } else {
+                            Toast.makeText(requireContext(), "No local songs available.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
         }
@@ -202,8 +241,10 @@ class RecommendationsFragment : Fragment() {
     private fun openList(title: String, items: List<String>) {
         val args = Bundle().apply {
             putString("title", title)
+            // Ensure array is not empty before converting/passing, though the calling function now handles the check
             putStringArray("items", items.toTypedArray())
         }
+        // findNavController().navigate handles the R.id.recommendationsListFragment navigation action
         findNavController().navigate(R.id.recommendationsListFragment, args)
     }
 

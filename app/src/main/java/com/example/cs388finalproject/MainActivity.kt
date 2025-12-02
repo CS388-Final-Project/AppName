@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity() {
                     val current =
                         navHost.childFragmentManager.primaryNavigationFragment
                     if (current is ProfileFragment) {
-                        current.updateSpotifyUi(profile, topTracks, animate = false)
+                        current.updateSpotifyUi(profile, topTracks)
                     }
                 }
 

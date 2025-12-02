@@ -1,5 +1,6 @@
 package com.example.cs388finalproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cs388finalproject.databinding.FragmentFriendsBinding
 import com.example.cs388finalproject.model.Post
 import com.example.cs388finalproject.model.UserProfile
+import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -52,13 +54,25 @@ class FriendsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val isGuest = com.example.cs388finalproject.ui.auth.GuestSession.isGuest(requireContext())
+
         val user = auth.currentUser
-        if (user == null) {
-            // Guest → can't add friends
-            binding.tvFriendsHint.text = "Log in to search and add friends."
+        if (isGuest || user == null || user.isAnonymous) {
+            binding.guestContainer.visibility = View.VISIBLE
             binding.etSearch.visibility = View.GONE
             binding.rgSearchMode.visibility = View.GONE
             binding.recyclerFriends.visibility = View.GONE
+            binding.tvFriendsHint.visibility = View.GONE
+
+            binding.btnExitGuestFriends.setOnClickListener {
+                com.example.cs388finalproject.ui.auth.GuestSession.clearAll(requireContext())
+                FirebaseAuth.getInstance().signOut()
+
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
+            }
+
             return
         }
 
@@ -101,7 +115,13 @@ class FriendsFragment : Fragment() {
         db.collection("users")
             .get()
             .addOnSuccessListener { snapshot ->
-                val users = snapshot.documents.mapNotNull { it.toObject(UserProfile::class.java) }
+                val users = snapshot.documents.mapNotNull { doc ->
+                    // Skip guest users
+                    val isGuest = doc.getBoolean("isGuest") ?: false
+                    if (isGuest) return@mapNotNull null
+
+                    doc.toObject(UserProfile::class.java)
+                }
                 allUsers.clear()
                 allUsers.addAll(users)
                 applySearch()

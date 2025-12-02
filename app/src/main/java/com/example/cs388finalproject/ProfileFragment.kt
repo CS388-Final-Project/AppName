@@ -24,6 +24,10 @@ import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ProfileFragment : Fragment() {
 
@@ -99,6 +103,9 @@ class ProfileFragment : Fragment() {
         }
 
         binding.btnViewFriends.setOnClickListener { showFriendsDialog() }
+
+        // View my posts button → show posts with date/time
+        binding.btnViewMyPosts.setOnClickListener { showMyPostsDialog() }
 
         // Load Spotify data if available
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
@@ -392,6 +399,54 @@ class ProfileFragment : Fragment() {
         binding.tvTrack2.setOnClickListener { if (t.size > 1) launchSongDetails(t[1]) }
         binding.imgTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
         binding.tvTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
+    }
+
+    // Show all this user's posts with timestamp
+    private fun showMyPostsDialog() {
+        val user = auth.currentUser
+        if (user == null || isGuest()) {
+            Toast.makeText(requireContext(), "You must be logged in.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        db.collection("posts")
+            .whereEqualTo("uid", user.uid)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.isEmpty) {
+                    Toast.makeText(
+                        requireContext(),
+                        "You haven't made any posts yet.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
+                val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault())
+
+                val items = snapshot.documents.map { doc ->
+                    val song = doc.getString("songName") ?: "Unknown song"
+                    val artist = doc.getString("artistName") ?: "Unknown artist"
+                    val createdAt = doc.getLong("createdAt") ?: 0L
+                    val formatted = formatter.format(Date(createdAt))
+
+                    "$formatted - $song — $artist"
+                }
+
+                AlertDialog.Builder(requireContext())
+                    .setTitle("My Posts")
+                    .setItems(items.toTypedArray(), null)
+                    .setPositiveButton("Close", null)
+                    .show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to load your posts.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 
     override fun onDestroyView() {

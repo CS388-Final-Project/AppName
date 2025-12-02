@@ -95,11 +95,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         ensureNotificationPermission()
-
         createPostPromptChannel()
 
-        // Schedule the next post prompt
-        PostPromptWorker.scheduleNextPrompt(this)
+        // Schedule the next post prompt for this user
+        val currentUser = auth.currentUser
+        if (!isGuest && currentUser != null && !currentUser.isAnonymous) {
+            PostPromptWorker.scheduleNextPrompt(this, currentUser.uid)
+        }
 
         val navHost =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -334,7 +336,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     //for push notifications
     private fun createPostPromptChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -371,6 +372,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         coroutineScope.cancel()

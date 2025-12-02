@@ -21,14 +21,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 
+
 class CreatePostActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreatePostBinding
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance() // 💡 NEW: Firebase Storage
+    private val storage = FirebaseStorage.getInstance()
 
-    private var imageUri: Uri? = null // 💡 NEW: Stores the URI of the selected/taken photo
+    private var imageUri: Uri? = null
 
     // --- ACTIVITY RESULT LAUNCHERS ---
 
@@ -86,7 +87,7 @@ class CreatePostActivity : AppCompatActivity() {
         // Upload button
         binding.btnUpload.setOnClickListener { createPost() }
 
-        // 💡 NEW: Select Photo Button
+        // Select Photo Button
         binding.btnSelectPhoto.setOnClickListener {
             requestPermissions()
         }
@@ -162,13 +163,13 @@ class CreatePostActivity : AppCompatActivity() {
 
     // --- POST CREATION & UPLOAD ---
 
-    private fun uploadImageAndCreatePost(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>) {
+    private fun uploadImageAndCreatePost(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>,lastPromptAt: Long) {
 
         // Check if imageUri is set, if not, use the placeholder and proceed
         val imageToUpload = imageUri
         if (imageToUpload == null) {
             val placeholder = "https://picsum.photos/600/600"
-            writePostToFirestore(userUid, songMetadata, location, placeholder)
+            writePostToFirestore(userUid, songMetadata, location, placeholder,lastPromptAt)
             return
         }
 
@@ -182,7 +183,7 @@ class CreatePostActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     // Image uploaded, now save the post
-                    writePostToFirestore(userUid, songMetadata, location, downloadUri.toString())
+                    writePostToFirestore(userUid, songMetadata, location, downloadUri.toString(),lastPromptAt)
                 }
             }
             .addOnFailureListener { e ->
@@ -191,7 +192,16 @@ class CreatePostActivity : AppCompatActivity() {
             }
     }
 
-    private fun writePostToFirestore(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>, imageUrl: String) {
+    //Storing Posts to the Database
+    private fun writePostToFirestore(
+        userUid: String,
+        songMetadata: Map<String, Any>,
+        location: Map<String, Double>,
+        imageUrl: String,
+        lastPromptAt: Long
+    ) {
+
+        val now = System.currentTimeMillis()
 
         db.collection("users").document(userUid).get()
             .addOnSuccessListener { userDoc ->
@@ -211,12 +221,22 @@ class CreatePostActivity : AppCompatActivity() {
                     explicit = songMetadata["explicit"] as Boolean,
                     previewUrl = songMetadata["previewUrl"] as String,
                     location = location,
-                    createdAt = System.currentTimeMillis()
+                    createdAt = now
                 )
 
-                db.collection("posts")
-                    .add(newPost)
+                val postsCollection = db.collection("posts")
+
+                val docRef = if (lastPromptAt > 0L) {
+                    val windowId = "${userUid}_${lastPromptAt}"
+                    postsCollection.document(windowId)
+                } else {
+
+                    postsCollection.document()
+                }
+
+                docRef.set(newPost)
                     .addOnSuccessListener {
+                        binding.btnUpload.isEnabled = true
                         Toast.makeText(this, "Post uploaded!", Toast.LENGTH_SHORT).show()
                         finish()
                     }
@@ -228,9 +248,12 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun createPost() {
-        val user = auth.currentUser ?: return
+        val user = auth.currentUser ?: run {
+            Toast.makeText(this, "You must be logged in to post.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // 1. Gather Song Metadata
+        //  Get Song data
         val songMetadata = mapOf(
             "songId" to (intent.getStringExtra("songId") ?: ""),
             "songName" to (intent.getStringExtra("songName") ?: "Unknown Song"),
@@ -242,12 +265,56 @@ class CreatePostActivity : AppCompatActivity() {
             "previewUrl" to (intent.getStringExtra("previewUrl") ?: "")
         )
 
-        // 2. Fetch Location then Upload Image and Post
+        //  Fetch Location first
         getCurrentLatLng { lat, lng ->
             val location = mapOf("lat" to lat, "lng" to lng)
 
-            // Starts the upload and write process
-            uploadImageAndCreatePost(user.uid, songMetadata, location)
+
+            db.collection("users").document(user.uid).get()
+                .addOnSuccessListener { doc ->
+                    val lastPromptAt = doc.getLong("lastPromptAt") ?: 0L
+
+                    if (lastPromptAt > 0L) {
+
+                        val windowId = "${user.uid}_${lastPromptAt}"
+                        val windowPostRef = db.collection("posts").document(windowId)
+
+                        windowPostRef.get()
+                            .addOnSuccessListener { snapshot ->
+                                if (snapshot.exists()) {
+
+                                    Toast.makeText(
+                                        this,
+                                        "Posting now will replace your last post for this window.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+
+                                uploadImageAndCreatePost(
+                                    user.uid,
+                                    songMetadata,
+                                    location,
+                                    lastPromptAt
+                                )
+                            }
+                            .addOnFailureListener {
+
+                                uploadImageAndCreatePost(
+                                    user.uid,
+                                    songMetadata,
+                                    location,
+                                    lastPromptAt
+                                )
+                            }
+                    } else {
+
+                        uploadImageAndCreatePost(user.uid, songMetadata, location, 0L)
+                    }
+                }
+                .addOnFailureListener {
+
+                    uploadImageAndCreatePost(user.uid, songMetadata, location, 0L)
+                }
         }
     }
 

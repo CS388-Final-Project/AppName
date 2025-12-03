@@ -12,6 +12,7 @@ import com.example.cs388finalproject.R
 import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -85,16 +86,19 @@ class SettingsActivity : AppCompatActivity() {
 
         val updates = mapOf(
             "username" to newUsername,
-            "bio" to newBio
+            "bio" to newBio,
+            "uid" to user.uid,
+            "email" to (user.email ?: "")
         )
 
+
         db.collection("users").document(user.uid)
-            .update(updates)
+            .set(updates, SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
                 finish()
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 Toast.makeText(this, "Failed to update profile.", Toast.LENGTH_SHORT).show()
             }
     }

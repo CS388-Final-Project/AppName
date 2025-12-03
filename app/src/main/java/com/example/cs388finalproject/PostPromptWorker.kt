@@ -81,7 +81,7 @@ class PostPromptWorker(
     }
 
     //Real Notificaitons
-    /*
+
     companion object {
         /**
          * Schedule the next prompt at a random time within the next 24 hours.
@@ -103,8 +103,8 @@ class PostPromptWorker(
                 request
             )
         }
-    }*/
-
+    }
+    /*
     //Test Notifications
     companion object {
         // Schedules test prompt run for user
@@ -124,5 +124,5 @@ class PostPromptWorker(
                 request
             )
         }
-    }
+    }*/
 }

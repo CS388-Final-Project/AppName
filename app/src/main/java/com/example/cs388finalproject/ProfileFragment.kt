@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.cs388finalproject.databinding.FragmentProfileBinding
+import com.example.cs388finalproject.ui.MyPostsActivity
 import com.example.cs388finalproject.ui.auth.GuestSession
 import com.example.cs388finalproject.ui.auth.LoginActivity
 import com.example.cs388finalproject.ui.auth.SignupActivity
@@ -24,10 +25,6 @@ import com.google.firebase.storage.FirebaseStorage
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.Query
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class ProfileFragment : Fragment() {
 
@@ -54,9 +51,7 @@ class ProfileFragment : Fragment() {
             else Toast.makeText(requireContext(), "Permission needed", Toast.LENGTH_SHORT).show()
         }
 
-    // Helper function to check for guest status
     private fun isGuest(): Boolean {
-        // Checks both shared preferences flag and Firebase anonymous status
         return GuestSession.isGuest(requireContext()) || auth.currentUser?.isAnonymous == true
     }
 
@@ -67,13 +62,11 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        // default state for Spotify tracks section
         binding.layoutTopTracks.visibility = View.GONE
 
         loadUserData()
         loadProfilePicture()
 
-        // Settings button
         binding.btnSettings.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -83,7 +76,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Change photo button
         binding.btnChangePhoto.setOnClickListener {
             if (isGuest()) {
                 Toast.makeText(requireContext(), "Sign Up to edit profile", Toast.LENGTH_SHORT).show()
@@ -93,7 +85,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Connect Spotify button
         binding.btnConnectSpotifyProfile.setOnClickListener {
             if (isGuest()) {
                 startActivity(Intent(requireContext(), SignupActivity::class.java))
@@ -104,26 +95,24 @@ class ProfileFragment : Fragment() {
 
         binding.btnViewFriends.setOnClickListener { showFriendsDialog() }
 
-        // View my posts button → show posts with date/time
-        binding.btnViewMyPosts.setOnClickListener { showMyPostsDialog() }
+        // ⬇️ CHANGED: open a full-screen "My Posts" list
+        binding.btnViewMyPosts.setOnClickListener {
+            openMyPostsScreen()
+        }
 
-        // Load Spotify data if available
         (activity as? MainActivity)?.getSpotifyState()?.let { state ->
             if (!isGuest()) updateSpotifyUi(state.profile, state.topTracks)
         }
 
-        // Logout button
         binding.btnLogout.setOnClickListener { handleLogout() }
 
         return binding.root
     }
 
-    // Fixed and unified logout/exit function
     private fun handleLogout() {
         val user = auth.currentUser
 
         if (isGuest()) {
-            // 1. Handle Anonymous User Deletion
             if (user?.isAnonymous == true) {
                 user.delete()
                     .addOnCompleteListener { task ->
@@ -134,7 +123,6 @@ class ProfileFragment : Fragment() {
                             requireActivity().finish()
                             Toast.makeText(requireContext(), "Guest session ended.", Toast.LENGTH_SHORT).show()
                         } else {
-                            // If deletion fails, just sign out of the app
                             GuestSession.clearAll(requireContext())
                             auth.signOut()
                             startActivity(Intent(requireActivity(), LoginActivity::class.java))
@@ -142,14 +130,12 @@ class ProfileFragment : Fragment() {
                             Toast.makeText(requireContext(), "Signed out successfully.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                return // Exit immediately as navigation is handled in the listener
+                return
             } else {
-                // Non-anonymous user but using Guest flag (clear flag)
                 GuestSession.clearAll(requireContext())
             }
         }
 
-        // 2. Regular User Logout
         auth.signOut()
         startActivity(Intent(requireActivity(), LoginActivity::class.java))
         requireActivity().finish()
@@ -177,9 +163,8 @@ class ProfileFragment : Fragment() {
             return
         }
 
-        // Guest UI
         binding.tvUsername.text = "Guest User"
-        binding.tvBio.text = "No Bio Yet" // Ensure Bio is set for guests
+        binding.tvBio.text = "No Bio Yet"
 
         binding.btnLogout.visibility = View.VISIBLE
         binding.btnLogout.text = "Exit Guest / Log In"
@@ -188,9 +173,7 @@ class ProfileFragment : Fragment() {
         binding.btnChangePhoto.alpha = 0.4f
 
         binding.btnConnectSpotifyProfile.text = "Sign Up to connect to Spotify"
-        binding.btnConnectSpotifyProfile.alpha = 1f // Clickable to go to signup
-
-        // NOTE: The btnLogout listener is handled by the unified handleLogout() in onCreateView
+        binding.btnConnectSpotifyProfile.alpha = 1f
     }
 
     private fun loadUserData() {
@@ -204,7 +187,6 @@ class ProfileFragment : Fragment() {
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
                 binding.tvUsername.text = doc.getString("username") ?: "N/A"
-
                 val bio = doc.getString("bio") ?: "No Bio Yet"
                 binding.tvBio.text = bio
 
@@ -212,7 +194,6 @@ class ProfileFragment : Fragment() {
                 updateFriendsButton()
             }
             .addOnFailureListener {
-                // Handle error if Firestore lookup fails
                 binding.tvUsername.text = "N/A"
                 binding.tvBio.text = "No Bio Yet"
             }
@@ -242,13 +223,13 @@ class ProfileFragment : Fragment() {
                         ?: "Unknown user"
                 }.toTypedArray()
 
-                AlertDialog.Builder(requireContext())
+                androidx.appcompat.app.AlertDialog.Builder(requireContext())
                     .setTitle("Your Friends")
                     .setItems(names) { _, which ->
                         val uidToRemove = idsForQuery[which]
                         val name = names[which]
 
-                        AlertDialog.Builder(requireContext())
+                        androidx.appcompat.app.AlertDialog.Builder(requireContext())
                             .setTitle("Remove friend?")
                             .setMessage("Remove $name from your friends?")
                             .setPositiveButton("Remove") { _, _ -> removeFriend(uidToRemove) }
@@ -323,7 +304,6 @@ class ProfileFragment : Fragment() {
             .update("profilePictureUrl", url)
             .addOnSuccessListener { loadProfilePicture() }
             .addOnFailureListener {
-                // Fallback to setting the document if update fails (e.g., document missing fields)
                 db.collection("users").document(id)
                     .set(mapOf("profilePictureUrl" to url), SetOptions.merge())
                     .addOnSuccessListener { loadProfilePicture() }
@@ -401,52 +381,14 @@ class ProfileFragment : Fragment() {
         binding.tvTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
     }
 
-    // Show all this user's posts with timestamp
-    private fun showMyPostsDialog() {
+    // ⬇️ NEW: open "My Posts" activity
+    private fun openMyPostsScreen() {
         val user = auth.currentUser
         if (user == null || isGuest()) {
             Toast.makeText(requireContext(), "You must be logged in.", Toast.LENGTH_SHORT).show()
             return
         }
-
-        db.collection("posts")
-            .whereEqualTo("uid", user.uid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.isEmpty) {
-                    Toast.makeText(
-                        requireContext(),
-                        "You haven't made any posts yet.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@addOnSuccessListener
-                }
-
-                val formatter = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault())
-
-                val items = snapshot.documents.map { doc ->
-                    val song = doc.getString("songName") ?: "Unknown song"
-                    val artist = doc.getString("artistName") ?: "Unknown artist"
-                    val createdAt = doc.getLong("createdAt") ?: 0L
-                    val formatted = formatter.format(Date(createdAt))
-
-                    "$formatted - $song — $artist"
-                }
-
-                AlertDialog.Builder(requireContext())
-                    .setTitle("My Posts")
-                    .setItems(items.toTypedArray(), null)
-                    .setPositiveButton("Close", null)
-                    .show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to load your posts.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        startActivity(Intent(requireContext(), MyPostsActivity::class.java))
     }
 
     override fun onDestroyView() {

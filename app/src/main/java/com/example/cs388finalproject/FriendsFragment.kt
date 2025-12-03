@@ -246,8 +246,8 @@ private class FriendsAdapter(
 
     inner class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val text1: TextView = itemView.findViewById(android.R.id.text1)
-        private val text2: TextView = itemView.findViewById(android.R.id.text2)
+        private val text1: TextView = itemView.findViewById(R.id.text1)
+        private val text2: TextView = itemView.findViewById(R.id.text2)
 
         fun bind(user: UserProfile) {
             text1.text = if (user.username.isNotBlank()) user.username else user.email
@@ -259,7 +259,7 @@ private class FriendsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(android.R.layout.simple_list_item_2, parent, false)
+            .inflate(R.layout.item_friend_list, parent, false)
         return FriendViewHolder(view)
     }
 

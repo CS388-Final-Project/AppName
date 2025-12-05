@@ -163,13 +163,13 @@ class CreatePostActivity : AppCompatActivity() {
 
     // --- POST CREATION & UPLOAD ---
 
-    private fun uploadImageAndCreatePost(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>,lastPromptAt: Long) {
+    private fun uploadImageAndCreatePost(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>) {
 
         // Check if imageUri is set, if not, use the placeholder and proceed
         val imageToUpload = imageUri
         if (imageToUpload == null) {
             val placeholder = "https://picsum.photos/600/600"
-            writePostToFirestore(userUid, songMetadata, location, placeholder,lastPromptAt)
+            writePostToFirestore(userUid, songMetadata, location, placeholder)
             return
         }
 
@@ -183,7 +183,7 @@ class CreatePostActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     // Image uploaded, now save the post
-                    writePostToFirestore(userUid, songMetadata, location, downloadUri.toString(),lastPromptAt)
+                    writePostToFirestore(userUid, songMetadata, location, downloadUri.toString())
                 }
             }
             .addOnFailureListener { e ->
@@ -197,8 +197,7 @@ class CreatePostActivity : AppCompatActivity() {
         userUid: String,
         songMetadata: Map<String, Any>,
         location: Map<String, Double>,
-        imageUrl: String,
-        lastPromptAt: Long
+        imageUrl: String
     ) {
 
         val now = System.currentTimeMillis()
@@ -208,10 +207,17 @@ class CreatePostActivity : AppCompatActivity() {
 
                 val username = userDoc.getString("username") ?: "Unknown"
 
+                // Always create a new unique document
+                val postsCollection = db.collection("posts")
+                val docRef = postsCollection.document() // Generate unique ID
+
+                val postId = docRef.id
+
                 val newPost = Post(
+                    postId = postId,
                     uid = userUid,
                     username = username,
-                    imagePath = imageUrl, // 💡 The actual URL from Firebase Storage
+                    imagePath = imageUrl,
                     songId = songMetadata["songId"] as String,
                     songName = songMetadata["songName"] as String,
                     artistName = songMetadata["artistName"] as String,
@@ -223,16 +229,6 @@ class CreatePostActivity : AppCompatActivity() {
                     location = location,
                     createdAt = now
                 )
-
-                val postsCollection = db.collection("posts")
-
-                val docRef = if (lastPromptAt > 0L) {
-                    val windowId = "${userUid}_${lastPromptAt}"
-                    postsCollection.document(windowId)
-                } else {
-
-                    postsCollection.document()
-                }
 
                 docRef.set(newPost)
                     .addOnSuccessListener {
@@ -269,56 +265,11 @@ class CreatePostActivity : AppCompatActivity() {
         getCurrentLatLng { lat, lng ->
             val location = mapOf("lat" to lat, "lng" to lng)
 
-
-            db.collection("users").document(user.uid).get()
-                .addOnSuccessListener { doc ->
-                    val lastPromptAt = doc.getLong("lastPromptAt") ?: 0L
-
-                    if (lastPromptAt > 0L) {
-
-                        val windowId = "${user.uid}_${lastPromptAt}"
-                        val windowPostRef = db.collection("posts").document(windowId)
-
-                        windowPostRef.get()
-                            .addOnSuccessListener { snapshot ->
-                                if (snapshot.exists()) {
-
-                                    Toast.makeText(
-                                        this,
-                                        "Posting now will replace your last post for this window.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                uploadImageAndCreatePost(
-                                    user.uid,
-                                    songMetadata,
-                                    location,
-                                    lastPromptAt
-                                )
-                            }
-                            .addOnFailureListener {
-
-                                uploadImageAndCreatePost(
-                                    user.uid,
-                                    songMetadata,
-                                    location,
-                                    lastPromptAt
-                                )
-                            }
-                    } else {
-
-                        uploadImageAndCreatePost(user.uid, songMetadata, location, 0L)
-                    }
-                }
-                .addOnFailureListener {
-
-                    uploadImageAndCreatePost(user.uid, songMetadata, location, 0L)
-                }
+            // Simply upload the post without checking for window logic
+            uploadImageAndCreatePost(user.uid, songMetadata, location)
         }
     }
 
-    // ... getCurrentLatLng remains the same ...
     private fun getCurrentLatLng(callback: (Double, Double) -> Unit) {
         val fused = LocationServices.getFusedLocationProviderClient(this)
 

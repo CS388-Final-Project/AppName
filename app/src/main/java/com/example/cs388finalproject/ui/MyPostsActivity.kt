@@ -10,16 +10,17 @@ import com.example.cs388finalproject.R
 import com.example.cs388finalproject.model.Post
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class MyPostsActivity : AppCompatActivity() {
 
     private lateinit var recyclerMyPosts: RecyclerView
     private lateinit var btnBack: ImageView
-
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-
     private lateinit var adapter: MyPostsAdapter
+
+    private var postsListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,23 +46,33 @@ class MyPostsActivity : AppCompatActivity() {
             return
         }
 
-        db.collection("posts")
+        // Use addSnapshotListener for real-time updates
+        postsListener = db.collection("posts")
             .whereEqualTo("uid", user.uid)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.isEmpty) {
-                    Toast.makeText(this, "You haven't made any posts yet.", Toast.LENGTH_SHORT).show()
-                    adapter.submitList(emptyList())
-                    return@addOnSuccessListener
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Toast.makeText(this, "Failed to load your posts.", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
                 }
 
-                val posts = snapshot.toObjects(Post::class.java)
-                    .sortedByDescending { it.createdAt }
+                if (snapshot == null || snapshot.isEmpty) {
+                    Toast.makeText(this, "You haven't made any posts yet.", Toast.LENGTH_SHORT).show()
+                    adapter.submitList(emptyList())
+                    return@addSnapshotListener
+                }
+
+                // Map documents and include the document ID as postId
+                val posts = snapshot.documents.map { doc ->
+                    doc.toObject(Post::class.java)?.copy(postId = doc.id) ?: Post()
+                }.sortedByDescending { it.createdAt }
 
                 adapter.submitList(posts)
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to load your posts.", Toast.LENGTH_SHORT).show()
-            }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Remove the listener when activity is destroyed
+        postsListener?.remove()
     }
 }

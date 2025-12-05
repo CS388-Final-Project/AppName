@@ -1,6 +1,7 @@
 package com.example.cs388finalproject.model
 
 data class Post(
+    val postId: String = "",
     val uid: String = "",
     val username: String = "",
 
@@ -21,5 +22,9 @@ data class Post(
     val location: Map<String, Double> = mapOf("lat" to 0.0, "lng" to 0.0),
 
     // Feed ordering
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+
+    val likeCount: Int = 0,
+    val likedBy: List<String> = emptyList(),
+    val commentCount: Int = 0
 )

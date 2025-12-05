@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cs388finalproject.data.PostRepository
 import com.example.cs388finalproject.databinding.FragmentFeedBinding
 import com.example.cs388finalproject.model.Post
+import com.example.cs388finalproject.ui.CommentActivity
 import com.example.cs388finalproject.ui.CreatePostActivity
 import com.example.cs388finalproject.ui.SongDetailActivity
 import com.example.cs388finalproject.ui.home.FeedAdapter
@@ -161,8 +162,10 @@ class FeedFragment : Fragment() {
         feedListener?.remove()
         feedListener = repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
-            val posts = snapshot.toObjects<Post>()
-            adapter.submitList(posts)
+
+            val posts = snapshot.documents.map { doc ->
+                doc.toObject(Post::class.java)?.copy(postId = doc.id) ?: Post()
+            }
 
             allPosts = posts
             applyWindowFilterAndSubmit()
@@ -190,12 +193,10 @@ class FeedFragment : Fragment() {
                 feedListener?.remove()
 
                 if (friendUids.isEmpty()) {
-
                     allPosts = emptyList()
                     applyWindowFilterAndSubmit()
                     return@addSnapshotListener
                 }
-
 
                 // Firestore whereIn supports up to 10 values; for more you'd split the query.
                 val limitedIds = if (friendUids.size > 10) friendUids.take(10) else friendUids
@@ -206,10 +207,10 @@ class FeedFragment : Fragment() {
                         if (postsError != null || snapshot == null) {
                             return@addSnapshotListener
                         }
-                        val posts = snapshot.toObjects<Post>()
-                            .sortedByDescending { it.createdAt }
 
-                        adapter.submitList(posts)
+                        val posts = snapshot.documents.map { doc ->
+                            doc.toObject(Post::class.java)?.copy(postId = doc.id) ?: Post()
+                        }.sortedByDescending { it.createdAt }
 
                         allPosts = posts
                         applyWindowFilterAndSubmit()

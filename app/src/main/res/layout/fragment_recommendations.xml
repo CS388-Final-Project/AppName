@@ -47,6 +47,7 @@
             android:background="@drawable/card_background"
             android:padding="20dp"
             android:layout_marginBottom="12dp"
+            android:backgroundTint="#4F7C82"
             android:clickable="true"
             android:focusable="true">
 
@@ -63,7 +64,7 @@
                     android:text="Top Songs from Your Circle"
                     android:textStyle="bold"
                     android:textSize="20sp"
-                    android:textColor="#0B2E33"
+                    android:textColor="@color/white"
                     android:gravity="center" />
 
                 <TextView
@@ -71,7 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Loading..."
-                    android:textColor="#0B2E33"
+                    android:textColor="@color/white"
                     android:textAlignment="viewStart"
                     android:textSize="18sp"
                     android:lineSpacingExtra="6dp"
@@ -85,7 +86,7 @@
                 android:text="›"
                 android:textSize="32sp"
                 android:gravity="center_vertical"
-                android:textColor="#0B2E33"
+                android:textColor="@color/white"
                 android:paddingStart="8dp" />
 
         </LinearLayout>
@@ -100,6 +101,7 @@
             android:background="@drawable/card_background"
             android:padding="20dp"
             android:layout_marginBottom="12dp"
+            android:backgroundTint="#4F7C82"
             android:clickable="true"
             android:focusable="true">
 
@@ -116,18 +118,18 @@
                     android:text="Top Artists from Your Circle"
                     android:textStyle="bold"
                     android:textSize="20sp"
-                    android:textColor="#0B2E33"
+                    android:textColor="@color/white"
                     android:gravity="center" />
 
                 <TextView
                     android:id="@+id/tvTopArtistsSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#0B2E33"
-                    android:textSize="18sp"
                     android:lineSpacingExtra="6dp"
+                    android:paddingTop="12dp"
                     android:textAlignment="viewStart"
-                    android:paddingTop="12dp" />
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <TextView
@@ -136,7 +138,7 @@
                 android:text="›"
                 android:textSize="32sp"
                 android:gravity="center_vertical"
-                android:textColor="#0B2E33"
+                android:textColor="@color/white"
                 android:paddingStart="8dp" />
 
         </LinearLayout>
@@ -149,6 +151,7 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:background="@drawable/card_background"
+            android:backgroundTint="#4F7C82"
             android:padding="20dp"
             android:clickable="true"
             android:focusable="true">
@@ -166,7 +169,7 @@
                     android:text="Top Songs Near You"
                     android:textStyle="bold"
                     android:textSize="20sp"
-                    android:textColor="#0B2E33"
+                    android:textColor="@color/white"
                     android:gravity="center" />
 
                 <TextView
@@ -174,7 +177,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Loading..."
-                    android:textColor="#0B2E33"
+                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:lineSpacingExtra="6dp"
                     android:textAlignment="viewStart"
@@ -187,7 +190,7 @@
                 android:text="›"
                 android:textSize="32sp"
                 android:gravity="center_vertical"
-                android:textColor="#0B2E33"
+                android:textColor="@color/white"
                 android:paddingStart="8dp" />
 
         </LinearLayout>

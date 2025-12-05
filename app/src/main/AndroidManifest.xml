@@ -57,6 +57,7 @@
             android:label="Settings"/>
         <activity android:name=".ui.CreatePostActivity"/>
         <activity android:name=".ui.SongDetailActivity" />
+        <activity android:name=".ui.CommentActivity" />
         <activity android:name=".ui.MyPostsActivity" android:exported="false" />
         <activity android:name=".ui.home.RecommendedFriendsActivity" android:exported="false" />
 

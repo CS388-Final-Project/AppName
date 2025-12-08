@@ -57,9 +57,9 @@ class RecommendationsFragment : Fragment() {
         return if (text.length > maxLength) text.take(maxLength) + "…" else text
     }
 
-    // ---------------------------------------------------------
+
     // Guest Mode UI
-    // ---------------------------------------------------------
+
     private fun loadGuestUi() {
         binding.tvTopSongsTitle.text = "Top Songs on MusicMedia"
         binding.tvTopArtistsTitle.text = "Top Artists on MusicMedia"
@@ -107,9 +107,9 @@ class RecommendationsFragment : Fragment() {
             }
     }
 
-    // ---------------------------------------------------------
+
     // Signed-In Mode
-    // ---------------------------------------------------------
+
     private fun loadSignedInUi(uid: String) {
 
         binding.tvTopSongsTitle.text = "Top Songs from Your Circle"
@@ -120,8 +120,7 @@ class RecommendationsFragment : Fragment() {
                 val friends = (doc.get("friends") as? List<String>) ?: emptyList()
                 val circle = friends + uid
 
-                // Only query posts if the circle is not empty, though Firestore automatically handles empty 'in' arrays
-                // when the field is indexed. We still filter for an empty post list to prevent crashing the ListFragment.
+
                 if (circle.isEmpty()) {
                     binding.tvTopSongsSummary.text = "You need friends to see recommendations!"
                     binding.tvTopArtistsSummary.text = "You need friends to see recommendations!"
@@ -175,9 +174,9 @@ class RecommendationsFragment : Fragment() {
             }
     }
 
-    // ---------------------------------------------------------
+
     // Location-based Songs
-    // ---------------------------------------------------------
+
     @SuppressLint("MissingPermission")
     private fun loadLocationTopSongs() {
 
@@ -235,16 +234,14 @@ class RecommendationsFragment : Fragment() {
         }
     }
 
-    // ---------------------------------------------------------
+
     // Navigation
-    // ---------------------------------------------------------
+
     private fun openList(title: String, items: List<String>) {
         val args = Bundle().apply {
             putString("title", title)
-            // Ensure array is not empty before converting/passing, though the calling function now handles the check
             putStringArray("items", items.toTypedArray())
         }
-        // findNavController().navigate handles the R.id.recommendationsListFragment navigation action
         findNavController().navigate(R.id.recommendationsListFragment, args)
     }
 

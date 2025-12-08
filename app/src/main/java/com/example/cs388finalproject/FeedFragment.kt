@@ -157,7 +157,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-    /** Global feed → all posts, newest first  */
+    /** Global feed shows all posts, newest first  */
     private fun listenToGlobalFeed() {
         feedListener?.remove()
         feedListener = repo.feed().addSnapshotListener { snapshot, error ->

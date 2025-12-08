@@ -60,7 +60,7 @@ class LoginActivity : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-                // 💡 CRITICAL FIX: Check if the user profile exists in Firestore 💡
+                // 💡 Check if the user profile exists in Firestore
                 db.collection("users").document(uid).get()
                     .addOnSuccessListener { doc ->
                         setLoading(false)

@@ -87,7 +87,12 @@ class FeedAdapter(
             binding.textSong.text = songLine
             binding.textSong.setOnClickListener { onSongClick(post) }
 
-            // Location
+            // Click → open song details
+            binding.textSong.setOnClickListener {
+                onSongClick(post)
+            }
+
+            // Format location string
             val lat = post.location["lat"] ?: 0.0
             val lng = post.location["lng"] ?: 0.0
             binding.textLocation.text =

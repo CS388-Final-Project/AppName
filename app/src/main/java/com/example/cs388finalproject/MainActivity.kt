@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         return GuestSession.isGuest(this)
     }
 
-    /** Utility that fragments can call. If returns true -> guest is blocked and onGuestBlocked executed. */
+    // Utility that fragments can call. If returns true -> guest is blocked and onGuestBlocked executed.
     fun ensureNotGuest(onGuestBlocked: () -> Unit = {}) : Boolean {
         return if (isGuestUser()) {
             onGuestBlocked()
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         } else false
     }
 
-    // ---------- SPOTIFY LOGIN ----------
+    // SPOTIFY LOGIN
     fun startSpotifyLogin() {
         if (isGuestUser()) {
             // navigate to SignupActivity to encourage sign up
@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
     private fun isJson(text: String): Boolean =
         text.trim().startsWith("{") || text.trim().startsWith("[")
 
-    // (rest of fetch/profile/currentlyPlaying/startAutoRefresh same as your original)
+
     private fun fetchSpotifyProfileAndTopTracks() {
         val token = spotifyAccessToken ?: return
 
@@ -359,7 +359,7 @@ class MainActivity : AppCompatActivity() {
         // No further action needed here; Worker already handles missing permission
     }
 
-    // Check & request POST_NOTIFICATIONS on Android 13+
+
     private fun ensureNotificationPermission() {
         if (Build.VERSION.SDK_INT >= 33) {
             val hasPermission = ContextCompat.checkSelfPermission(

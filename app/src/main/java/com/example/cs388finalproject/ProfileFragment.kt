@@ -95,7 +95,7 @@ class ProfileFragment : Fragment() {
 
         binding.btnViewFriends.setOnClickListener { showFriendsDialog() }
 
-        // ⬇️ CHANGED: open a full-screen "My Posts" list
+
         binding.btnViewMyPosts.setOnClickListener {
             openMyPostsScreen()
         }

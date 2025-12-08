@@ -31,7 +31,7 @@ class CreatePostActivity : AppCompatActivity() {
 
     private var imageUri: Uri? = null
 
-    // --- ACTIVITY RESULT LAUNCHERS ---
+
 
     // For Gallery Selection
     private val galleryLauncher = registerForActivityResult(
@@ -61,7 +61,7 @@ class CreatePostActivity : AppCompatActivity() {
         val cameraGranted = permissions[android.Manifest.permission.CAMERA] ?: false
         val storageGranted = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             permissions[android.Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: false
-        } else true // Storage permission not strictly needed on modern APIs
+        } else true
 
         if (cameraGranted && storageGranted) {
             showImageSourceDialog()
@@ -97,7 +97,7 @@ class CreatePostActivity : AppCompatActivity() {
 
     private fun requestPermissions() {
         val permissions = mutableListOf(android.Manifest.permission.CAMERA)
-        // Only request WRITE_EXTERNAL_STORAGE on older APIs if necessary for saving
+
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             permissions.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -161,7 +161,7 @@ class CreatePostActivity : AppCompatActivity() {
         }
     }
 
-    // --- POST CREATION & UPLOAD ---
+    //  POST CREATION & UPLOAD
 
     private fun uploadImageAndCreatePost(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>) {
 

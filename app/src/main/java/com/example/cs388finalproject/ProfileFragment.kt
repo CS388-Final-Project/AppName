@@ -381,7 +381,7 @@ class ProfileFragment : Fragment() {
         binding.tvTrack3.setOnClickListener { if (t.size > 2) launchSongDetails(t[2]) }
     }
 
-    // ⬇️ NEW: open "My Posts" activity
+    //  "My Posts" activity
     private fun openMyPostsScreen() {
         val user = auth.currentUser
         if (user == null || isGuest()) {

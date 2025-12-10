@@ -12,8 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4F7C82"
-        >
+        android:background="#4F7C82">
 
         <!-- Title -->
         <TextView
@@ -21,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="12dp"
             android:text="Card Title"
             android:textColor="@color/white"
@@ -29,7 +28,22 @@
             android:textSize="18sp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@id/btnDelete" />
+
+        <!-- Delete Button -->
+        <ImageView
+            android:id="@+id/btnDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/outline_delete_24"
+            android:contentDescription="Delete post"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+             />
 
         <!-- Description -->
         <TextView

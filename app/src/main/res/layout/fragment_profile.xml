@@ -17,7 +17,6 @@
         android:orientation="vertical"
         android:paddingHorizontal="20dp">
 
-        <!-- SETTINGS -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,7 +31,6 @@
                 app:tint="@color/black"/>
         </LinearLayout>
 
-        <!-- PROFILE PHOTO -->
         <ImageView
             android:id="@+id/imgProfilePhoto"
             android:layout_width="170dp"
@@ -42,7 +40,6 @@
             android:src="@drawable/outline_account_circle_24"
             android:contentDescription="Profile photo" />
 
-        <!-- CHANGE PHOTO BUTTON -->
         <Button
             android:id="@+id/btnChangePhoto"
             android:layout_width="wrap_content"
@@ -55,7 +52,6 @@
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"/>
 
-        <!-- USER INFO CARD -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,23 +82,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email"
+                android:text="Bio"
                 android:textStyle="bold"
                 android:textColor="#0B2E33"
                 android:textSize="16sp"/>
 
             <TextView
-                android:id="@+id/tvEmail"
+                android:id="@+id/tvBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#93B1B5"
-                android:textColor="#0B2E33"
                 android:textSize="15sp"
                 android:padding="10dp"
-                android:layout_marginTop="6dp"/>
+                android:background="#93B1B5"
+                android:textColor="#0B2E33"
+                android:layout_marginTop="6dp" />
         </LinearLayout>
 
-        <!-- CONNECT SPOTIFY BUTTON -->
         <Button
             android:id="@+id/btnConnectSpotifyProfile"
             android:layout_width="match_parent"
@@ -113,18 +108,38 @@
             android:backgroundTint="#1DB954"
             android:layout_marginTop="24dp"/>
 
-        <!-- VIEW FRIENDS BUTTON -->
-        <Button
-            android:id="@+id/btnViewFriends"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Friends"
-            android:textAllCaps="false"
-            android:backgroundTint="#4F7C82"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="12dp"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            >
 
-        <!-- LOG OUT BUTTON -->
+            <Button
+                android:id="@+id/btnViewFriends"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:backgroundTint="#4F7C82"
+                android:text="View Friends"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnViewMyPosts"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="#4F7C82"
+                android:text="View Posts"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="200dp"
@@ -135,7 +150,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"/>
 
-        <!-- SPOTIFY TOP TRACKS -->
         <LinearLayout
             android:id="@+id/layoutTopTracks"
             android:layout_width="match_parent"
@@ -144,12 +158,12 @@
             android:layout_marginTop="24dp"
             android:visibility="gone">
 
-            <!-- SPOTIFY HEADER -->
             <LinearLayout
                 android:id="@+id/spotifyHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
 
                 <ImageView
                     android:id="@+id/imgSpotifyAvatar"
@@ -161,13 +175,22 @@
                     android:id="@+id/tvSpotifyName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Spotify Connected"
+                    android:text="Spotify Profile Name"
+                    android:textStyle="bold"
                     android:textColor="#0B2E33"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
 
-            <!-- TRACKS ROW -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top Tracks"
+                android:textStyle="bold"
+                android:textColor="#0B2E33"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
+
             <LinearLayout
                 android:id="@+id/topTracksRow"
                 android:layout_width="match_parent"
@@ -176,7 +199,6 @@
                 android:gravity="center"
                 android:layout_marginTop="16dp">
 
-                <!-- TRACK 1 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -202,7 +224,6 @@
                         android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
-                <!-- TRACK 2 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -228,7 +249,6 @@
                         android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
-                <!-- TRACK 3 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

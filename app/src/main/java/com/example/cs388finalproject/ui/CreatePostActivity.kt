@@ -21,14 +21,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 
+
 class CreatePostActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreatePostBinding
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance() // 💡 NEW: Firebase Storage
+    private val storage = FirebaseStorage.getInstance()
 
-    private var imageUri: Uri? = null // 💡 NEW: Stores the URI of the selected/taken photo
+    private var imageUri: Uri? = null
 
     // --- ACTIVITY RESULT LAUNCHERS ---
 
@@ -86,7 +87,7 @@ class CreatePostActivity : AppCompatActivity() {
         // Upload button
         binding.btnUpload.setOnClickListener { createPost() }
 
-        // 💡 NEW: Select Photo Button
+        // Select Photo Button
         binding.btnSelectPhoto.setOnClickListener {
             requestPermissions()
         }
@@ -191,14 +192,29 @@ class CreatePostActivity : AppCompatActivity() {
             }
     }
 
-    private fun writePostToFirestore(userUid: String, songMetadata: Map<String, Any>, location: Map<String, Double>, imageUrl: String) {
+    //Storing Posts to the Database
+    private fun writePostToFirestore(
+        userUid: String,
+        songMetadata: Map<String, Any>,
+        location: Map<String, Double>,
+        imageUrl: String
+    ) {
+
+        val now = System.currentTimeMillis()
 
         db.collection("users").document(userUid).get()
             .addOnSuccessListener { userDoc ->
 
                 val username = userDoc.getString("username") ?: "Unknown"
 
+                // Always create a new unique document
+                val postsCollection = db.collection("posts")
+                val docRef = postsCollection.document() // Generate unique ID
+
+                val postId = docRef.id
+
                 val newPost = Post(
+                    postId = postId,
                     uid = userUid,
                     username = username,
                     imagePath = imageUrl,
@@ -211,12 +227,12 @@ class CreatePostActivity : AppCompatActivity() {
                     explicit = songMetadata["explicit"] as Boolean,
                     previewUrl = songMetadata["previewUrl"] as String,
                     location = location,
-                    createdAt = System.currentTimeMillis()
+                    createdAt = now
                 )
 
-                db.collection("posts")
-                    .add(newPost)
+                docRef.set(newPost)
                     .addOnSuccessListener {
+                        binding.btnUpload.isEnabled = true
                         Toast.makeText(this, "Post uploaded!", Toast.LENGTH_SHORT).show()
                         finish()
                     }
@@ -228,9 +244,12 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun createPost() {
-        val user = auth.currentUser ?: return
+        val user = auth.currentUser ?: run {
+            Toast.makeText(this, "You must be logged in to post.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        // 1. Gather Song Metadata
+        //  Get Song data
         val songMetadata = mapOf(
             "songId" to (intent.getStringExtra("songId") ?: ""),
             "songName" to (intent.getStringExtra("songName") ?: "Unknown Song"),
@@ -242,16 +261,15 @@ class CreatePostActivity : AppCompatActivity() {
             "previewUrl" to (intent.getStringExtra("previewUrl") ?: "")
         )
 
-        // 2. Fetch Location then Upload Image and Post
+        //  Fetch Location first
         getCurrentLatLng { lat, lng ->
             val location = mapOf("lat" to lat, "lng" to lng)
 
-            // Starts the upload and write process
+            // Simply upload the post without checking for window logic
             uploadImageAndCreatePost(user.uid, songMetadata, location)
         }
     }
 
-    // ... getCurrentLatLng remains the same ...
     private fun getCurrentLatLng(callback: (Double, Double) -> Unit) {
         val fused = LocationServices.getFusedLocationProviderClient(this)
 

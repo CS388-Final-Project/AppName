@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cs388finalproject.data.PostRepository
 import com.example.cs388finalproject.databinding.FragmentFeedBinding
 import com.example.cs388finalproject.model.Post
+import com.example.cs388finalproject.ui.CommentActivity
 import com.example.cs388finalproject.ui.CreatePostActivity
 import com.example.cs388finalproject.ui.SongDetailActivity
 import com.example.cs388finalproject.ui.home.FeedAdapter
@@ -33,6 +34,8 @@ class FeedFragment : Fragment() {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private var lastPromptAt: Long? = null
+
+    private var allPosts: List<Post> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,6 +62,7 @@ class FeedFragment : Fragment() {
                 .addSnapshotListener { doc, error ->
                     if (error != null || doc == null || !doc.exists()) return@addSnapshotListener
                     lastPromptAt = doc.getLong("lastPromptAt")
+                    applyWindowFilterAndSubmit()
                 }
         }
 
@@ -69,7 +73,6 @@ class FeedFragment : Fragment() {
             adapter.submitList(posts)
         }*/
 
-        /*
         repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
 
@@ -84,7 +87,7 @@ class FeedFragment : Fragment() {
             }
 
             adapter.submitList(filtered)
-        }*/
+        }
 
         binding.buttonCreatePost.setOnClickListener {
             val main = requireActivity() as MainActivity
@@ -159,8 +162,13 @@ class FeedFragment : Fragment() {
         feedListener?.remove()
         feedListener = repo.feed().addSnapshotListener { snapshot, error ->
             if (error != null || snapshot == null) return@addSnapshotListener
-            val posts = snapshot.toObjects<Post>()
-            adapter.submitList(posts)
+
+            val posts = snapshot.documents.map { doc ->
+                doc.toObject(Post::class.java)?.copy(postId = doc.id) ?: Post()
+            }
+
+            allPosts = posts
+            applyWindowFilterAndSubmit()
         }
     }
 
@@ -185,7 +193,8 @@ class FeedFragment : Fragment() {
                 feedListener?.remove()
 
                 if (friendUids.isEmpty()) {
-                    adapter.submitList(emptyList())
+                    allPosts = emptyList()
+                    applyWindowFilterAndSubmit()
                     return@addSnapshotListener
                 }
 
@@ -198,12 +207,25 @@ class FeedFragment : Fragment() {
                         if (postsError != null || snapshot == null) {
                             return@addSnapshotListener
                         }
-                        val posts = snapshot.toObjects<Post>()
-                            .sortedByDescending { it.createdAt }
 
-                        adapter.submitList(posts)
+                        val posts = snapshot.documents.map { doc ->
+                            doc.toObject(Post::class.java)?.copy(postId = doc.id) ?: Post()
+                        }.sortedByDescending { it.createdAt }
+
+                        allPosts = posts
+                        applyWindowFilterAndSubmit()
                     }
             }
+    }
+    // Helper for posting within timing window
+    private fun applyWindowFilterAndSubmit() {
+        val cutoff = lastPromptAt ?: 0L // If never prompted, show everything
+
+        val filtered = allPosts.filter { post ->
+            post.createdAt >= cutoff
+        }
+
+        adapter.submitList(filtered)
     }
 
     override fun onDestroyView() {

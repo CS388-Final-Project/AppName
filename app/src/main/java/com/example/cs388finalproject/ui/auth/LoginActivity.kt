@@ -47,18 +47,48 @@ class LoginActivity : AppCompatActivity() {
 
         setLoading(true)
 
-        // user is not guest
+        // Clear guest status before logging in
         GuestSession.setGuest(this, false)
+        GuestSession.clearAll(this)
 
         auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                setLoading(false)
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+            .addOnSuccessListener { authResult ->
+                val uid = authResult.user?.uid
+                if (uid == null) {
+                    setLoading(false)
+                    toast("Login failed: UID missing.")
+                    return@addOnSuccessListener
+                }
+
+                // 💡 CRITICAL FIX: Check if the user profile exists in Firestore 💡
+                db.collection("users").document(uid).get()
+                    .addOnSuccessListener { doc ->
+                        setLoading(false)
+                        GuestSession.clearAll(this) // Clear flags regardless
+
+                        if (doc.exists()) {
+                            // Profile exists, proceed to the main app
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        } else {
+                            // Profile is missing, force them to the Signup/Profile Creation screen
+                            toast("Profile data missing. Please complete sign-up.")
+                            startActivity(Intent(this, SignupActivity::class.java))
+                            finish()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        // Handle Firestore read error, assume success and proceed carefully
+                        setLoading(false)
+                        toast("Database check failed, logging in: ${e.message}")
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+
             }
             .addOnFailureListener {
                 setLoading(false)
-                toast("Wrong credentials")
+                toast("Wrong credentials or user not found.")
             }
     }
 

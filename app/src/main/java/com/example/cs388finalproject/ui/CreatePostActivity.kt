@@ -201,7 +201,7 @@ class CreatePostActivity : AppCompatActivity() {
                 val newPost = Post(
                     uid = userUid,
                     username = username,
-                    imagePath = imageUrl, // 💡 The actual URL from Firebase Storage
+                    imagePath = imageUrl,
                     songId = songMetadata["songId"] as String,
                     songName = songMetadata["songName"] as String,
                     artistName = songMetadata["artistName"] as String,

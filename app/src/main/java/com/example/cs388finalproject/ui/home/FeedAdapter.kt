@@ -35,7 +35,7 @@ class FeedAdapter(
             if (!results.isNullOrEmpty()) {
                 val address = results[0]
                 val city = address.locality ?: ""
-                val state = address.adminArea ?: ""   // <-- FIX: valid field name
+                val state = address.adminArea ?: ""
 
                 if (city.isNotBlank() || state.isNotBlank()) {
                     "$city, $state"

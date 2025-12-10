@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Clear guest status before logging in
         GuestSession.setGuest(this, false)
-        GuestSession.clearAll(this)
+        //GuestSession.clearAll(this)
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
@@ -64,8 +64,9 @@ class LoginActivity : AppCompatActivity() {
                 db.collection("users").document(uid).get()
                     .addOnSuccessListener { doc ->
                         setLoading(false)
-                        GuestSession.clearAll(this) // Clear flags regardless
-
+                        //GuestSession.clearAll(this) // Clear flags regardless
+                        GuestSession.setGuest(this,false)
+                        GuestSession.setFirstLaunchDone(this)
                         if (doc.exists()) {
                             // Profile exists, proceed to the main app
                             startActivity(Intent(this, MainActivity::class.java))

@@ -1,6 +1,7 @@
 package com.example.cs388finalproject.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -73,10 +74,13 @@ class RecommendedFriendsActivity : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-                val mySongs = myPosts.map { it.songName }
+                val mySongIds = myPosts
+                    .map { it.songId }
                     .filter { it.isNotBlank() }
                     .toSet()
-                val myArtists = myPosts.map { it.artistName }
+
+                val myArtists = myPosts
+                    .map { it.artistName.trim().lowercase() }
                     .filter { it.isNotBlank() }
                     .toSet()
 
@@ -85,25 +89,50 @@ class RecommendedFriendsActivity : AppCompatActivity() {
                     .addOnSuccessListener { allSnap ->
                         val allPosts = allSnap.toObjects(Post::class.java)
 
+                        val otherPostsCount = allPosts.count { it.uid != user.uid }
+
+
+
+
                         val overlapCounts = mutableMapOf<String, Int>()
 
                         for (p in allPosts) {
                             if (p.uid == user.uid) continue
-                            val sameSong = p.songName in mySongs
-                            val sameArtist = p.artistName in myArtists
+
+                            //val songKey = p.songName.trim().lowercase()
+                            val artistKey = p.artistName.trim().lowercase()
+
+                            val sameSong = p.songId.isNotBlank() && p.songId in mySongIds
+
+
+
+                            val sameArtist = myArtists.any { artist ->
+                                artistKey.contains(artist) || artist.contains(artistKey)
+                            }
+
                             if (sameSong || sameArtist) {
                                 overlapCounts[p.uid] = (overlapCounts[p.uid] ?: 0) + 1
                             }
                         }
 
+
+
                         if (overlapCounts.isEmpty()) {
-                            Toast.makeText(
-                                this,
-                                "No recommended friends yet. Keep posting songs!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            adapter.submitList(emptyList())
-                            return@addOnSuccessListener
+                            val otherUids = allPosts.map{ it.uid }.filter{it != user.uid}.distinct()
+
+                            if (otherUids.isEmpty()){
+                                Toast.makeText(
+                                    this,
+                                    "No recommended friends yet. Keep posting songs!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                adapter.submitList(emptyList())
+                                return@addOnSuccessListener
+                            }
+                            otherUids.forEach { uidOther ->
+                                overlapCounts[uidOther] = overlapCounts[uidOther] ?: 1
+                            }
+
                         }
 
                         val topUids = overlapCounts.entries

@@ -217,17 +217,27 @@ class ProfileFragment : Fragment() {
 
         db.collection("users").whereIn("uid", idsForQuery).get()
             .addOnSuccessListener { snapshot ->
-                val names = snapshot.documents.map { doc ->
+                /*val names = snapshot.documents.map { doc ->
                     doc.getString("username")
                         ?: doc.getString("email")
                         ?: "Unknown user"
-                }.toTypedArray()
+                }.toTypedArray()*/
+
+                val friendEntries = snapshot.documents.map { doc ->
+                    val uid = doc.getString("uid") ?: doc.id
+                    val name = doc.getString("username")
+                        ?: doc.getString("email")
+                        ?: "Unknown user"
+                    uid to name
+                }
+                val names = friendEntries.map { it.second }.toTypedArray()
 
                 androidx.appcompat.app.AlertDialog.Builder(requireContext())
                     .setTitle("Your Friends")
                     .setItems(names) { _, which ->
-                        val uidToRemove = idsForQuery[which]
-                        val name = names[which]
+                        //val uidToRemove = idsForQuery[which]
+                        //val name = names[which]
+                        val (uidToRemove, name) = friendEntries[which]
 
                         androidx.appcompat.app.AlertDialog.Builder(requireContext())
                             .setTitle("Remove friend?")

@@ -107,8 +107,8 @@ class FriendsFragment : Fragment() {
         }
 
         setupSearchUi()
-        // Updated initial hint for better user experience
-        binding.tvFriendsHint.text = "Start typing a username to find people."
+        binding.tvFriendsHint.text =
+            "Start typing a username, song, or artist to find people."
 
         loadInitialData(currentUid)
     }
@@ -204,9 +204,12 @@ class FriendsFragment : Fragment() {
                         u.uid !in friendIds && u.uid != uid
                     } else true
 
+                    val usernameSafe = (u.username as String?) ?:""
+                    val emailSafe = (u.email as String?)?: ""
+
                     notFriend && (
-                            u.username.contains(queryLower, true) ||
-                                    u.email.contains(queryLower, true)
+                            usernameSafe.contains(queryLower, true) ||
+                                    emailSafe.contains(queryLower, true)
                             )
                 }
 
@@ -294,9 +297,8 @@ private class FriendsAdapter(
     }
 
     inner class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // 💡 UPDATED: Use custom R.id from item_friend_list.xml
-        private val text1: TextView = itemView.findViewById(R.id.text1)
-        private val text2: TextView = itemView.findViewById(R.id.text2)
+        private val text1: TextView = itemView.findViewById(android.R.id.text1)
+        private val text2: TextView = itemView.findViewById(android.R.id.text2)
 
         // Binds one user row
         fun bind(user: UserProfile) {
@@ -308,9 +310,8 @@ private class FriendsAdapter(
 
     // Creates view holder
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
-        // 💡 UPDATED: Inflate the new custom layout item_friend_list.xml
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_friend_list, parent, false)
+            .inflate(android.R.layout.simple_list_item_2, parent, false)
         return FriendViewHolder(view)
     }
 

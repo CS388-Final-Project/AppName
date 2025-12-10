@@ -28,7 +28,3 @@ build/
 
 # Ignore all problem reports
 build/reports/
-
-# Keystore (DO NOT COMMIT)
-*.keystore
-*.jks

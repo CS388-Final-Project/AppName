@@ -18,10 +18,7 @@ android {
             keyPassword "MusicMedia123"
         }
         debug {
-            storeFile file("shared-spotify.keystore")
-            storePassword "MusicMedia123"
-            keyAlias "spotifykey"
-            keyPassword "MusicMedia123"
+            // Use the default debug keystore – DO NOT use the Spotify keystore
         }
     }
 
